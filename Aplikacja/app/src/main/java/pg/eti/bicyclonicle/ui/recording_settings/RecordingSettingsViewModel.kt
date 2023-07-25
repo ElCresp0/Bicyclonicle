@@ -1,13 +1,13 @@
-package pg.eti.bicyclonicle.ui.home
+package pg.eti.bicyclonicle.ui.recording_settings
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class HomeViewModel : ViewModel() {
+class RecordingSettingsViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
-        value = "This is home fragment"
+        value = "This is recording settings fragment"
     }
     val text: LiveData<String> = _text
 }
