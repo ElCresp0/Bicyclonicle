@@ -22,14 +22,14 @@ class AppSettingsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
+        val appSettingsViewModel =
             ViewModelProvider(this).get(AppSettingsViewModel::class.java)
 
         _binding = FragmentAppSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         val textView: TextView = binding.textAppSettings
-        homeViewModel.text.observe(viewLifecycleOwner) {
+        appSettingsViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }
         return root
