@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_constraintCircleRadius="15dp"
+    android:layout_height="match_parent">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/recordTime"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="21:37"
+            android:layout_marginTop="-20dp"
+            android:layout_marginRight="25dp"
+            android:layout_gravity="center"/>
+        <TextView
+            android:id="@+id/recordName"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Nagranie"
+            android:layout_marginTop="2dp"
+            android:layout_marginRight="20dp"
+            android:layout_gravity="center"/>
+        <ImageView
+            android:id="@+id/recordSettings"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="-17dp"
+            android:layout_marginLeft="40dp"
+            android:src="@drawable/baseline_settings_24" />
+        <ImageView
+            android:id="@+id/imageSD"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="-120dp"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/ic_home_black_24dp" />
+        <ImageView
+            android:id="@+id/imagePhone"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="-15dp"
+            android:layout_marginRight="20dp"
+            android:src="@drawable/baseline_video_settings_24" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
