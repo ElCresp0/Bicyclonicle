@@ -26,11 +26,15 @@ class MainActivity : AppCompatActivity() {
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_recording_settings, R.id
-                    .navigation_recording_library, R.id.navigation_app_settings
+                R.id.navigation_home, R.id.navigation_recording_library, R.id
+                    .navigation_recording_settings, R.id.navigation_app_settings
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Try to make connection with recorder.
+        // Whole class that will handle connection and update all data.
+        // Settings should be put in shared preferences.
     }
 }

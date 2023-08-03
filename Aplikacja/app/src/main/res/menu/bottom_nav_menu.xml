@@ -7,14 +7,14 @@
         android:title="@string/title_home" />
 
     <item
-        android:id="@+id/navigation_recording_settings"
-        android:icon="@drawable/baseline_video_settings_24"
-        android:title="@string/title_recording_settings" />
-
-    <item
         android:id="@+id/navigation_recording_library"
         android:icon="@drawable/baseline_video_library_24"
         android:title="@string/title_recordings_library" />
+
+    <item
+        android:id="@+id/navigation_recording_settings"
+        android:icon="@drawable/baseline_video_settings_24"
+        android:title="@string/title_recording_settings" />
 
     <item
         android:id="@+id/navigation_app_settings"
