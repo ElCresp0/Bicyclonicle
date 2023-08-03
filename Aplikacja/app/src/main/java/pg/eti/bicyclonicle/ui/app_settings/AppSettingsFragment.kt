@@ -1,42 +1,32 @@
 package pg.eti.bicyclonicle.ui.app_settings
 
+import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import pg.eti.bicyclonicle.databinding.FragmentAppSettingsBinding
+import androidx.preference.EditTextPreference
+import androidx.preference.PreferenceFragmentCompat
+import pg.eti.bicyclonicle.R
 
-class AppSettingsFragment : Fragment() {
 
-    private var _binding: FragmentAppSettingsBinding? = null
+/**
+ * Preferences are managed by SharedPreferences so there is no binding.
+ */
+class AppSettingsFragment : PreferenceFragmentCompat() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.app_settings_preferences, rootKey)
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        val appSettingsViewModel =
-            ViewModelProvider(this).get(AppSettingsViewModel::class.java)
-
-        _binding = FragmentAppSettingsBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        val textView: TextView = binding.textAppSettings
-        appSettingsViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
-        return root
+        val appVersionPreference = findPreference<EditTextPreference>("key_app_version")
+        appVersionPreference?.summary = getAppVersionName(requireContext())
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun getAppVersionName(context: Context): String {
+        return try {
+            val packageInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            packageInfo.versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            ""
+        }
     }
 }

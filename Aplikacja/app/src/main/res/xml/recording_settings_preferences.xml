@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Resolution preference -->
+    <ListPreference
+        android:key="key_resolution"
+        android:title="@string/title_resolution"
+        android:summary="@string/summary_resolution"
+        android:entries="@array/resolution_entries"
+        android:entryValues="@array/resolution_values"
+        android:defaultValue="720p"/>
+
+    <!-- Frame rate preference -->
+    <ListPreference
+        android:key="key_frame_rate"
+        android:title="@string/title_frame_rate"
+        android:summary="@string/summary_frame_rate"
+        android:entries="@array/frame_rate_entries"
+        android:entryValues="@array/frame_rate_values"
+        android:defaultValue="30"/>
+
+    <!-- Duration preference -->
+    <ListPreference
+        android:key="key_duration"
+        android:title="@string/title_duration"
+        android:summary="@string/summary_duration"
+        android:entries="@array/duration_entries"
+        android:entryValues="@array/duration_values"
+        android:defaultValue="300"/>
+
+    <!-- Mute sound preference -->
+    <CheckBoxPreference
+        android:key="key_mute_sound"
+        android:title="@string/title_mute_sound"
+        android:summary="@string/summary_mute_sound"
+        android:defaultValue="false"/>
+
+    <!-- Show date preference -->
+    <CheckBoxPreference
+        android:key="key_show_date"
+        android:title="@string/title_show_date"
+        android:summary="@string/summary_show_date"
+        android:defaultValue="true"/>
+
+    <!-- Codec preference -->
+    <ListPreference
+        android:key="key_codec"
+        android:title="Codec"
+        android:summary="Select the video codec"
+        android:entries="@array/codec_entries"
+        android:entryValues="@array/codec_values"
+        android:defaultValue="h264"/>
+
+</PreferenceScreen>
+
+

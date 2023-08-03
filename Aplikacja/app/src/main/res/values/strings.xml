@@ -1,7 +1,55 @@
 <resources>
+    <!-- TODO: translate it to Polish -->
     <string name="app_name">Bicyclonicle</string>
+
+    <!-- menu titles (mobile_navigation.xml) -->
     <string name="title_home">Home</string>
     <string name="title_recordings_library">Recordings</string>
     <string name="title_app_settings">App Settings</string>
     <string name="title_recording_settings">Recording Settings</string>
+
+    <!-- APP SETTINGS (app_settings_preferences.xml) -->
+    <!-- font size preference -->
+    <string name="title_font_size" translatable="false">Font Size</string>
+    <string name="summary_font_size" translatable="false">Select your preferred font size</string>
+    <string name="dialog_title_font_size" translatable="false">Choose Font Size</string>
+    <string name="default_value_font_size" translatable="false">medium</string>
+
+    <!-- app information preference -->
+    <string name="title_general_info" translatable="false">General Information</string>
+
+    <string name="title_authors" translatable="false">Authors</string>
+    <string name="summary_authors" translatable="false">
+        Julia Klingenberg, Jakub Kiliańczyk, Ignacy Wasilewski, Jan Kornacki
+    </string>
+
+    <string name="title_app_version" translatable="false">App Version</string>
+    <string name="summary_app_version" translatable="false">Latest</string>
+
+    <!-- RECORDING SETTINGS (recording_settings_preference.xml) -->
+    <!-- resolution preference -->
+    <string name="title_resolution" translatable="false">Resolution</string>
+    <string name="summary_resolution" translatable="false">Select the recording resolution</string>
+
+    <!-- frame rate preference -->
+    <string name="title_frame_rate" translatable="false">Frame Rate</string>
+    <string name="summary_frame_rate" translatable="false">Select the frame rate</string>
+
+    <!-- duration preference -->
+    <string name="title_duration" translatable="false">Clip Duration</string>
+    <string name="summary_duration" translatable="false">Select the duration of the clip</string>
+
+    <!-- mute sound preference -->
+    <string name="title_mute_sound" translatable="false">Mute Sound</string>
+    <string name="summary_mute_sound" translatable="false">Mute the sound during recording</string>
+
+    <!-- show date preference -->
+    <string name="title_show_date" translatable="false">Show Date on Clip</string>
+    <string name="summary_show_date" translatable="false">
+        Display the recording date on the footage
+    </string>
+
+    <!-- Codec preference -->
+    <string name="title_codec" translatable="false">Codec</string>
+    <string name="summary_codec" translatable="false">Select the video codec</string>
 </resources>

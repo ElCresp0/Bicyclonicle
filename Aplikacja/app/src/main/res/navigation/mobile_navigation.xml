@@ -12,20 +12,18 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_recording_settings"
-        android:name="pg.eti.bicyclonicle.ui.recording_settings.RecordingSettingsFragment"
-        android:label="@string/title_recording_settings"
-        tools:layout="@layout/fragment_recording_settings" />
-
-    <fragment
         android:id="@+id/navigation_recording_library"
         android:name="pg.eti.bicyclonicle.ui.recordings_library.RecordingsLibraryFragment"
         android:label="@string/title_recordings_library"
         tools:layout="@layout/fragment_recordings" />
 
     <fragment
+        android:id="@+id/navigation_recording_settings"
+        android:name="pg.eti.bicyclonicle.ui.recording_settings.RecordingSettingsFragment"
+        android:label="@string/title_recording_settings" />
+
+    <fragment
         android:id="@+id/navigation_app_settings"
         android:name="pg.eti.bicyclonicle.ui.app_settings.AppSettingsFragment"
-        android:label="@string/title_app_settings"
-        tools:layout="@layout/fragment_app_settings" />
+        android:label="@string/title_app_settings" />
 </navigation>
