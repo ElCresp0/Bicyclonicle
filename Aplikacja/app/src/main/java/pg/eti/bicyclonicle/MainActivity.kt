@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+
+
         // Try to make connection with recorder.
         // Whole class that will handle connection and update all data.
         // Settings should be put in shared preferences.
