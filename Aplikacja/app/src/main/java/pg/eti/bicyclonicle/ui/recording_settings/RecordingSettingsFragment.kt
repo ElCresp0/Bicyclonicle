@@ -1,6 +1,7 @@
 package pg.eti.bicyclonicle.ui.recording_settings
 
 import android.os.Bundle
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import pg.eti.bicyclonicle.databinding.FragmentRecordingSettingsBinding
 
-class RecordingSettingsFragment : Fragment() {
+import androidx.preference.PreferenceFragmentCompat
+import pg.eti.bicyclonicle.R
 
-    private var _binding: FragmentRecordingSettingsBinding? = null
+
+class RecordingSettingsFragment : PreferenceFragmentCompat() {
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(R.xml.recording_settings_preferences, rootKey)
+
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -39,5 +46,9 @@ class RecordingSettingsFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        val appVersionPreference = findPreference<EditTextPreference>("key_app_version")
+        appVersionPreference?.summary = getAppVersionName(requireContext())
+
     }
 }

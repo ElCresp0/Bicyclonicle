@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TODO: update polish version at the end -->
+    <!-- Font size options -->
+    <string-array name="font_sizes_entries">
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="font_sizes_values">
+        <item>small</item>
+        <item>medium</item>
+        <item>large</item>
+    </string-array>
+
+    <!-- Resolution options -->
+    <string-array name="resolution_entries">
+        <item>720p (HD)</item>
+        <item>1080p (Full HD)</item>
+        <item>4K (Ultra HD)</item>
+    </string-array>
+    <string-array name="resolution_values">
+        <item>720</item>
+        <item>1080</item>
+        <item>2160</item>
+    </string-array>
+
+    <!-- Frame rate options -->
+    <string-array name="frame_rate_entries">
+        <item>24 fps</item>
+        <item>30 fps</item>
+        <item>60 fps</item>
+    </string-array>
+    <string-array name="frame_rate_values">
+        <item>24</item>
+        <item>30</item>
+        <item>60</item>
+    </string-array>
+
+    <!-- Duration options -->
+    <string-array name="duration_entries">
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+        <item>10 minutes</item>
+    </string-array>
+    <string-array name="duration_values">
+        <item>120</item>
+        <item>300</item>
+        <item>600</item>
+    </string-array>
+
+    <!-- Codec options -->
+    <string-array name="codec_entries">
+        <item>H.264</item>
+        <item>H.265 (HEVC)</item>
+        <item>VP9</item>
+    </string-array>
+    <string-array name="codec_values">
+        <item>h264</item>
+        <item>h265</item>
+        <item>vp9</item>
+    </string-array>
+</resources>

@@ -1,0 +1,110 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Font Size Preference -->
+    <PreferenceCategory
+        app:icon="@drawable/baseline_format_size_24"
+        app:title="@string/title_general_info">
+
+        <ListPreference
+            android:key="key_font_size"
+            android:title="@string/title_font_size"
+            android:summary="@string/summary_font_size"
+            android:dialogTitle="@string/dialog_title_font_size"
+            android:entries="@array/font_sizes_entries"
+            android:entryValues="@array/font_sizes_values"
+            android:defaultValue="@string/default_value_font_size" />
+    </PreferenceCategory>
+
+    <!-- App Information -->
+    <PreferenceCategory
+        app:icon="@drawable/baseline_info_24"
+        app:title="@string/title_general_info">
+
+        <EditTextPreference
+            android:key="key_authors"
+            android:title="@string/title_authors"
+            android:summary="@string/summary_authors"
+            android:enabled="false" />
+
+        <EditTextPreference
+            android:key="key_app_version"
+            android:title="@string/title_app_version"
+            android:summary="@string/summary_app_version"
+            android:enabled="false" />
+
+
+    </PreferenceCategory>
+
+    <!--<PreferenceCategory
+        app:icon="@drawable/ic_baseline_accessibility_new_24"
+        app:title="@string/accessibility_header">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="manage_speaker"
+            app:summaryOff="@string/speaker_off_summary"
+            app:summaryOn="@string/speaker_on_summary"
+            app:title="@string/talkback_speaker_on_off_title" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="manage_speaker_beep"
+            app:summaryOff="@string/speaker_beep_off_summary"
+            app:summaryOn="@string/speaker_beep_on_summary"
+            app:title="@string/speaker_beep_title"
+            app:dependency="manage_speaker"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:icon="@drawable/ic_baseline_font_download_24"
+        app:title="@string/label_header">-->
+
+        <!--<SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="@string/label_key"
+            app:summaryOff="@string/label_summary_off"
+            app:summaryOn="@string/label_summary_on"
+            app:title="@string/label_title" />
+
+        <ListPreference
+            app:defaultValue="150"
+            app:dependency="label_on_off"
+            app:entries="@array/label_size_entries"
+            app:entryValues="@array/label_size_values"
+            app:key="label_size"
+            app:title="@string/label_size_title"
+            app:useSimpleSummaryProvider="true" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/label_text_view_outline_color"
+            android:key="label_outline_color"
+            android:title="@string/label_outline_color_title"
+            app:dependency="label_on_off" />
+
+        <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
+            android:defaultValue="@color/label_text_view_color"
+            android:key="label_stroke_color"
+            android:title="@string/label_stroke_color_title"
+            app:dependency="label_on_off" />
+
+        <SeekBarPreference
+            android:defaultValue="10"
+            android:key="label_outline_size"
+            android:max="20"
+            android:min="0"
+            android:title="@string/label_outline_size_title"
+            app:dependency="label_on_off" />
+
+        <SeekBarPreference
+            android:defaultValue="@integer/label_show_millis_default"
+            android:key="label_show_time"
+            android:max="@integer/label_show_millis_max"
+            android:min="@integer/label_show_millis_min"
+            android:title="@string/label_show_time_title"
+            app:dependency="label_on_off" />
+    </PreferenceCategory>-->
+</PreferenceScreen>
+
