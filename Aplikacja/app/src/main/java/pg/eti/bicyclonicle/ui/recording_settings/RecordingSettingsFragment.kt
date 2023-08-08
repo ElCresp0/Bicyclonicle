@@ -8,8 +8,5 @@ class RecordingSettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.recording_settings_preferences, rootKey)
-
-//        val appVersionPreference = findPreference<EditTextPreference>("key_app_version")
-//        appVersionPreference?.summary = getAppVersionName(requireContext())
     }
 }
