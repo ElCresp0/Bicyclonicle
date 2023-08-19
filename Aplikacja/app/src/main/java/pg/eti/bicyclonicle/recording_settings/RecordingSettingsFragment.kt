@@ -1,4 +1,4 @@
-package pg.eti.bicyclonicle.ui.recording_settings
+package pg.eti.bicyclonicle.recording_settings
 
 import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat

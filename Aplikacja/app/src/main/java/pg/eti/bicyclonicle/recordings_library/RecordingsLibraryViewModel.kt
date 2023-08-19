@@ -1,4 +1,4 @@
-package pg.eti.bicyclonicle.ui.recordings_library
+package pg.eti.bicyclonicle.recordings_library
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
