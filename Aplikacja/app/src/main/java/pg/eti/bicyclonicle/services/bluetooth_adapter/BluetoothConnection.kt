@@ -29,7 +29,12 @@ class BluetoothConnection(context: Context) {
             return BluetoothStatus.BT_DISABLED
         }
 
-        return BluetoothStatus.BT_ENABLED
+        return BluetoothStatus.BT_ENABLED_NOT_CONNECTED
+    }
+
+    // TODO: connection
+    fun isConnectedToArduino(): Boolean {
+        return false
     }
 
     private fun isBluetoothEnabled(): Boolean {

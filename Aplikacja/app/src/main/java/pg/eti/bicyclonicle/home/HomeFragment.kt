@@ -25,7 +25,13 @@ class HomeFragment : Fragment() {
 
     private val myEnableBtIntentLauncher = registerForActivityResult(ActivityResultContracts
         .StartActivityForResult()) {
-        homeViewModel.manageBluetoothStatus()
+        homeViewModel.updateBluetoothStatus()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        homeViewModel.updateBluetoothStatus()
     }
 
     override fun onCreateView(
@@ -58,15 +64,19 @@ class HomeFragment : Fragment() {
         }
 
         homeViewModel.bondedDevices.observe(viewLifecycleOwner) {
-            val bondedDevices = homeViewModel.bondedDevices.value
-            if (!bondedDevices.isNullOrEmpty()) {
-                // Init RecyclerView for bonded devices.
-                val recyclerViewBondedDevices = binding.rvBondedDevices
-                recyclerViewBondedDevices.layoutManager = LinearLayoutManager(context)
+            val recyclerViewBondedDevices = binding.rvBondedDevices
+            recyclerViewBondedDevices.layoutManager = LinearLayoutManager(context)
+            var stringAdapter: StringAdapter
 
-                val stringAdapter = StringAdapter(bondedDevices)
-                recyclerViewBondedDevices.adapter = stringAdapter
+            val bondedDevices = homeViewModel.bondedDevices.value
+            stringAdapter = if (!bondedDevices.isNullOrEmpty()) {
+                // Init RecyclerView for bonded devices.
+                StringAdapter(bondedDevices)
+            } else {
+                StringAdapter(ArrayList())
             }
+
+            recyclerViewBondedDevices.adapter = stringAdapter
         }
 
         homeViewModel.enableBluetoothIntent.observe(viewLifecycleOwner) {

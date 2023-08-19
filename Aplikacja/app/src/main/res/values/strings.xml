@@ -54,10 +54,11 @@
     <string name="summary_codec" translatable="false">Select the video codec</string>
 
     <!-- BLUETOOTH STATUS MESSAGES -->
-    <string name="bt_enabled" translatable="false">Bluetooth enabled.</string>
+    <string name="bt_enabled_not_paired" translatable="false">Bluetooth enabled, but not paired with Arduino.</string>
     <string name="no_bt_permissions" translatable="false">No bluetooth permissions.</string>
     <string name="no_bt_support" translatable="false">Device do not support bluetooth.</string>
     <string name="bt_disabled" translatable="false">Bluetooth turned off.</string>
+    <string name="bt_connected_to_arduino" translatable="false">Device connected to Arduino.</string>
     <string name="bt_error" translatable="false">Bluetooth error.</string>
 
 </resources>

@@ -22,7 +22,7 @@ class HomeViewModel : ViewModel() {
     private val _bluetoothConnection = MutableLiveData<BluetoothConnection>()
 
     // Lambda that use application got from HomeFragment to get access to getString.
-    private val getStringResource: (Int) -> String? = { stringResId ->
+    private val _getStringResource: (Int) -> String? = { stringResId ->
         context.value?.getString(stringResId)
     }
 
@@ -39,7 +39,7 @@ class HomeViewModel : ViewModel() {
             askToEnableBluetooth()
         }
 
-        manageBluetoothStatus()
+        updateBluetoothStatus()
     }
 
     private fun askToEnableBluetooth() {
@@ -47,18 +47,27 @@ class HomeViewModel : ViewModel() {
         _enableBluetoothIntent.value = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
     }
 
-    fun manageBluetoothStatus() {
-        val bluetoothStatus = _bluetoothConnection.value?.enableBluetooth()
-        if (bluetoothStatus != null && bluetoothStatus != BluetoothStatus.BT_ENABLED) {
-            _bluetoothStatusText.value = getStringResource(bluetoothStatus.stringResId)
+    // TODO: when device not connected to arduino then recordings library should check it
+    //  and show msg (and sent the status here) <- is it accomplished by the class
+    //  BluetoothConnection?
+    fun updateBluetoothStatus() {
+        var bluetoothStatus = _bluetoothConnection.value?.enableBluetooth()
+        if (bluetoothStatus != null && bluetoothStatus != BluetoothStatus.BT_ENABLED_NOT_CONNECTED) {
+            _bluetoothStatusText.value = _getStringResource(bluetoothStatus.stringResId)
             _bondedDevices.value = ArrayList()
 
-        } else if (bluetoothStatus != null && bluetoothStatus == BluetoothStatus.BT_ENABLED) {
-            _bluetoothStatusText.value = getStringResource(bluetoothStatus.stringResId)
-            _bondedDevices.value = _bluetoothConnection.value?.getBondedDevices()
+        } else if (bluetoothStatus != null && bluetoothStatus == BluetoothStatus.BT_ENABLED_NOT_CONNECTED) {
+            if (_bluetoothConnection.value!!.isConnectedToArduino()) {
+                bluetoothStatus = BluetoothStatus.BT_CONNECTED_TO_ARDUINO
+                _bondedDevices.value = ArrayList()
+            } else {
+                bluetoothStatus = BluetoothStatus.BT_ENABLED_NOT_CONNECTED
+                _bondedDevices.value = _bluetoothConnection.value?.getBondedDevices()
+            }
+            _bluetoothStatusText.value = _getStringResource(bluetoothStatus.stringResId)
 
         } else {
-            _bluetoothStatusText.value = getStringResource(R.string.bt_error)
+            _bluetoothStatusText.value = _getStringResource(R.string.bt_error)
             _bondedDevices.value = ArrayList()
         }
     }
