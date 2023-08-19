@@ -58,7 +58,8 @@
     <string name="no_bt_permissions" translatable="false">No bluetooth permissions.</string>
     <string name="no_bt_support" translatable="false">Device do not support bluetooth.</string>
     <string name="bt_disabled" translatable="false">Bluetooth turned off.</string>
-    <string name="bt_connected_to_arduino" translatable="false">Device connected to Arduino.</string>
+    <string name="bt_connected_to_arduino" translatable="false">Arduino connected.</string>
+    <string name="bt_not_connected_to_arduino" translatable="false">Arduino NOT connected.</string>
     <string name="bt_error" translatable="false">Bluetooth error.</string>
 
 </resources>

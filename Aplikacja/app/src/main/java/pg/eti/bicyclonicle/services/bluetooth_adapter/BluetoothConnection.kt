@@ -34,7 +34,7 @@ class BluetoothConnection(context: Context) {
 
     // TODO: connection
     fun isConnectedToArduino(): Boolean {
-        return false
+        return true
     }
 
     private fun isBluetoothEnabled(): Boolean {

@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import pg.eti.bicyclonicle.R
+import pg.eti.bicyclonicle.SharedPreferencesManager
 import pg.eti.bicyclonicle.services.bluetooth_adapter.BluetoothConnection
 import pg.eti.bicyclonicle.services.bluetooth_adapter.BluetoothStatus
 
@@ -29,10 +30,15 @@ class HomeViewModel : ViewModel() {
     private val _bondedDevices = MutableLiveData<List<String>>()
     val bondedDevices: LiveData<List<String>> = _bondedDevices
 
-    fun setupArduinoConnection() {
-        // Context will be not null here for sure.
-        _bluetoothConnection.value = BluetoothConnection(context.value!!)
+    private val _prefs = MutableLiveData<SharedPreferencesManager>()
 
+    fun initViewModel() {
+        // Context will be not null here for sure.
+        _prefs.value = SharedPreferencesManager(context.value!!)
+        _bluetoothConnection.value = BluetoothConnection(context.value!!)
+    }
+
+    fun setupArduinoConnection() {
         val bluetoothStatus = _bluetoothConnection.value?.enableBluetooth()
         // Take one try to enable bluetooth if it's not
         if (bluetoothStatus != null && bluetoothStatus == BluetoothStatus.BT_DISABLED) {
@@ -52,6 +58,11 @@ class HomeViewModel : ViewModel() {
     //  BluetoothConnection?
     fun updateBluetoothStatus() {
         var bluetoothStatus = _bluetoothConnection.value?.enableBluetooth()
+        _prefs.value!!.putPref(
+            SharedPreferencesManager.Prefs.IS_ARDUINO_CONNECTED.name,
+            false
+        )
+
         if (bluetoothStatus != null && bluetoothStatus != BluetoothStatus.BT_ENABLED_NOT_CONNECTED) {
             _bluetoothStatusText.value = _getStringResource(bluetoothStatus.stringResId)
             _bondedDevices.value = ArrayList()
@@ -60,6 +71,10 @@ class HomeViewModel : ViewModel() {
             if (_bluetoothConnection.value!!.isConnectedToArduino()) {
                 bluetoothStatus = BluetoothStatus.BT_CONNECTED_TO_ARDUINO
                 _bondedDevices.value = ArrayList()
+                _prefs.value!!.putPref(
+                    SharedPreferencesManager.Prefs.IS_ARDUINO_CONNECTED.name,
+                    true
+                )
             } else {
                 bluetoothStatus = BluetoothStatus.BT_ENABLED_NOT_CONNECTED
                 _bondedDevices.value = _bluetoothConnection.value?.getBondedDevices()

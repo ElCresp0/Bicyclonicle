@@ -45,6 +45,7 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         setupViewModelLiveData()
+        homeViewModel.initViewModel()
         homeViewModel.setupArduinoConnection()
 
         return root
