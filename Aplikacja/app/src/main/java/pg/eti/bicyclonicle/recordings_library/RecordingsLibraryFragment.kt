@@ -22,7 +22,7 @@ class RecordingsLibraryFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        recordingsLibraryViewModel.checkIfArduinoConnected()
+        recordingsLibraryViewModel.checkArduinoConnection()
     }
 
     override fun onCreateView(
@@ -40,7 +40,7 @@ class RecordingsLibraryFragment : Fragment() {
 
         setupViewModelLiveData()
         recordingsLibraryViewModel.initViewModel()
-        recordingsLibraryViewModel.checkIfArduinoConnected()
+        recordingsLibraryViewModel.checkArduinoConnection()
 
         return root
     }

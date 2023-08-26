@@ -1,4 +1,4 @@
-package pg.eti.bicyclonicle.services
+package pg.eti.bicyclonicle
 
 //import android.content.Context
 //import android.content.pm.PackageManager
