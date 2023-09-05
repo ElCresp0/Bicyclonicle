@@ -36,8 +36,6 @@ class RecordingsLibraryFragment : Fragment() {
         _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-
-
         setupViewModelLiveData()
         recordingsLibraryViewModel.initViewModel()
         recordingsLibraryViewModel.checkArduinoConnection()

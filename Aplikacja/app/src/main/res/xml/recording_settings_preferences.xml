@@ -8,7 +8,7 @@
         android:summary="@string/summary_resolution"
         android:entries="@array/resolution_entries"
         android:entryValues="@array/resolution_values"
-        android:defaultValue="720p"/>
+        android:defaultValue="720p" />
 
     <!-- Frame rate preference -->
     <ListPreference
@@ -42,7 +42,7 @@
         android:summary="@string/summary_show_date"
         android:defaultValue="true"/>
 
-    <!-- Codec preference -->
+    <!-- todo?: Codec preference
     <ListPreference
         android:key="key_codec"
         android:title="Codec"
@@ -50,6 +50,7 @@
         android:entries="@array/codec_entries"
         android:entryValues="@array/codec_values"
         android:defaultValue="h264"/>
+    -->
 
 </PreferenceScreen>
 

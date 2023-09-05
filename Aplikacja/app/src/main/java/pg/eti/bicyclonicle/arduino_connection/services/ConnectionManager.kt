@@ -11,7 +11,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import androidx.core.util.Consumer
-import pg.eti.bicyclonicle.SharedPreferencesManager
+import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import pg.eti.bicyclonicle.home.HOME_VM_TAG
@@ -79,7 +79,7 @@ class ConnectionManager private constructor(
 
             if (startConnection() == ConnectionStatus.CONNECTED) {
                 // Set global var that is observed by modules to decide whether perform actions.
-                prefsManager.setArduinoConnectionStatus(true)
+                prefsManager.setIsArduinoConnected(true)
 
                 return ConnectionStatus.CONNECTED
             }
@@ -88,8 +88,6 @@ class ConnectionManager private constructor(
     }
 
     private fun setupSocket(arduinoDevice: BluetoothDevice): BluetoothSocket? {
-        // todo: needed?
-//        val bluetoothDevice = bluetoothAdapter.getRemoteDevice(arduinoDevice.address)
         var tmpSocket: BluetoothSocket? = null
         val btSppUuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
@@ -146,33 +144,18 @@ class ConnectionManager private constructor(
             // until it succeeds or throws an exception.
             mmSocket!!.connect()
             Log.i(MANAGE_CONN_TAG, "Device connected")
-//            // todo: all that is needed?
-//            conn.obtainMessage(
-//                ConnectionStatus.CONNECTING.ordinal,
-//                ConnectionStatus.CONNECTED.ordinal,
-//                ConnectionStatus.NOT_CONNECTED.ordinal
-//            )
-//                .sendToTarget()
 
         } catch (connectException: IOException) {
             // Unable to connect; close the socket and return.
             try {
-                // todo?
                 mmSocket!!.close()
-                // todo: in ui there is arduino connected...
-                //  change text from handler
                 Log.e(MANAGE_CONN_TAG, "Cannot connect to device")
-//                viewModelHandler.obtainMessage(
-//                    ConnectionStatus.CONNECTING.ordinal,
-//                    ConnectionStatus.NOT_CONNECTED.ordinal,
-//                    ConnectionStatus.NOT_CONNECTED.ordinal
-//                ).sendToTarget()
 
             } catch (closeException: IOException) {
                 Log.e(MANAGE_CONN_TAG, "Could not close the client socket", closeException)
             }
 
-            prefsManager.setArduinoConnectionStatus(false)
+            prefsManager.setIsArduinoConnected(false)
 
             return ConnectionStatus.NOT_CONNECTED
         }
@@ -194,7 +177,7 @@ class ConnectionManager private constructor(
         ) {
             ConnectionStatus.CONNECTED
         } else {
-            prefsManager.setArduinoConnectionStatus(false)
+            prefsManager.setIsArduinoConnected(false)
             ConnectionStatus.NOT_CONNECTED
         }
     }
@@ -211,7 +194,7 @@ class ConnectionManager private constructor(
         try {
             mmSocket?.close()
             connectedThread?.cancel()
-            prefsManager.setArduinoConnectionStatus(false)
+            prefsManager.setIsArduinoConnected(false)
         } catch (e: IOException) {
             Log.e(MANAGE_CONN_TAG, "Could not close the client socket", e)
         }

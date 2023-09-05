@@ -7,12 +7,12 @@ import android.util.Log
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import kotlin.streams.toList
 
+private const val BT_CONN_TAG = "BT_CONN"
+
 class BluetoothManager private constructor (
     private val bluetoothAdapter: BluetoothAdapter?,
     private val arduinoName: String
 ) {
-    // todo: change tags in all modules
-    private val BT_CONN_TAG = "BT_CONN"
 
     @SuppressLint("MissingPermission")
     fun getBluetoothStatus(): BluetoothStatus {
