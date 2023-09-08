@@ -9,8 +9,8 @@ android {
 
     defaultConfig {
         applicationId "pg.eti.bicyclonicle"
-        minSdk 29
-        targetSdk 33
+        minSdk 23
+        targetSdk 31
         versionCode 1
         versionName "1.0"
 
