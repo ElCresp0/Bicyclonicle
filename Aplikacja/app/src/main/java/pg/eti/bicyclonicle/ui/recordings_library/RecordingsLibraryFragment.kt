@@ -1,19 +1,22 @@
 package pg.eti.bicyclonicle.ui.recordings_library
 
-import android.content.Context
+import android.graphics.Bitmap
+import android.media.MediaMetadataRetriever
+import android.media.ThumbnailUtils
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.GridView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import pg.eti.bicyclonicle.R
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
-import pg.eti.bicyclonicle.ui.record.Record_file
-import pg.eti.bicyclonicle.ui.record.Record_file_adapter
+import pg.eti.bicyclonicle.ui.record.RecordFile
+import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
+import java.io.File
+import java.lang.String
+
 
 class RecordingsLibraryFragment : Fragment() {
 
@@ -23,8 +26,8 @@ class RecordingsLibraryFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     var gridView: GridView ? = null
-    var arrayList: ArrayList<Record_file> ? = null
-    var recordFileAdapter: Record_file_adapter ? = null
+    var arrayList: ArrayList<RecordFile> ? = null
+    var recordFileAdapter: RecordFileAdapter ? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,31 +43,53 @@ class RecordingsLibraryFragment : Fragment() {
         recordingsLibraryViewModel.text.observe(viewLifecycleOwner) {
             //textView.text = it
 
+
         }
         gridView = binding.recordGrid
         arrayList = ArrayList()
         arrayList = setDataList()
         //record_file_adapter =
            // context?.let { Record_file_adapter(it.getApplicationContext(), arrayList!!) } //nie mam pojecia
-        recordFileAdapter = Record_file_adapter(requireContext(),arrayList!!)
+        recordFileAdapter = RecordFileAdapter(requireContext(),arrayList!!)
         gridView?.adapter = recordFileAdapter
 //aplicationContext
         return root
     }
 
 
-    private fun setDataList() :ArrayList<Record_file>{
+    private fun setDataList() :ArrayList<RecordFile>{
 
-        var arrayList: ArrayList<Record_file> = ArrayList()
+        var arrayList: ArrayList<RecordFile> = ArrayList()
+        val metaRetriever = MediaMetadataRetriever()
+        var thumb: Bitmap? = null
+        //arrayList.add(Record_file(R.drawable.ic_launcher_background, "Pierwsze nagranie", "21:37", null, null))
+        File("/data/data/pg.eti.bicyclonicle/files" ).walk().forEach {
+            println(it)
+            if(it.extension == "mp4"){
+                thumb = ThumbnailUtils.createVideoThumbnail(it.absolutePath, MediaStore.Images.Thumbnails.MINI_KIND)
+                metaRetriever.setDataSource(it.absolutePath)
 
-        arrayList.add(Record_file(R.drawable.ic_launcher_background, "Pierwsze nagranie", "21:37"))
-        arrayList.add(Record_file(R.drawable.ic_launcher_background, "Drugie nagranie", "20:37"))
-        arrayList.add(Record_file(R.drawable.ic_launcher_background, "Trzecie nagranie", "19:37"))
-        arrayList.add(Record_file(R.drawable.ic_launcher_background, "Czwarte nagranie", "18:37"))
-        arrayList.add(Record_file(R.drawable.ic_launcher_background, "Piąte nagranie", "17:37"))
+                val duration =
+                    metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                val dur = duration!!.toLong()
 
+                val seconds = String.valueOf(dur % 60000 / 1000)
+                val minutes = String.valueOf(dur / 60000)
+                val out = "$minutes:$seconds"
+
+                arrayList.add(RecordFile(thumb, it.name, out, null, null))
+            }
+
+
+            //TODO sprawdzić rozszerzenie mp4
+        }
         return arrayList
     }
+
+    private fun saveRecordToSD(){}
+
+    private fun saveRecordToTele(){}
+
 
     override fun onDestroyView() {
         super.onDestroyView()
