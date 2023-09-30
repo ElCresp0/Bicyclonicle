@@ -37,6 +37,7 @@ class RecordingSingleSetting(
      * @author jankejc
      */
     enum class Name(val key: String) {
+        SYNCHRONIZE("synchronize_button"),
         RESOLUTION("key_resolution"),
         FRAME_RATE("key_frame_rate"),
         CLIP_DURATION("key_duration"),

@@ -82,9 +82,10 @@ class RecordingsSettingsViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-
+            // Non UI, long lasting operations should be made on other thread.
             var alertDialog: AlertDialog? = null
             viewModelScope.launch(Dispatchers.Main) {
+                // UI on main.
                 alertDialog = loadingScreen.getShowedLoadingScreen()
             }
 
@@ -92,12 +93,46 @@ class RecordingsSettingsViewModel(
             val executeAfterWait: (Boolean) -> Unit = { isExecuted ->
                 Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
                 alertDialog!!.dismiss()
+
+                if (isExecuted) {
+                    enableSettings()
+                } else {
+                    disableSettings()
+                }
             }
 
             connectionManager.sendAndWaitForResponse(
                 commands.toString(),
                 executeAfterWait
             )
+        }
+    }
+
+    private fun enableSettings() {
+        viewModelScope.launch(Dispatchers.Main) {
+            // UI on main.
+            for (i in 0 until preferenceScreen.preferenceCount) {
+                val preference = preferenceScreen.getPreference(i)
+
+                if (!preference.isEnabled) {
+                    preference.isEnabled = true
+                }
+            }
+        }
+    }
+
+    private fun disableSettings() {
+        viewModelScope.launch(Dispatchers.Main) {
+            // UI on main.
+            for (i in 0 until preferenceScreen.preferenceCount) {
+                val preference = preferenceScreen.getPreference(i)
+
+                if (preference.isEnabled
+                    && !preference.key.equals(RecordingSingleSetting.Name.SYNCHRONIZE.key)
+                ) {
+                    preference.isEnabled = false
+                }
+            }
         }
     }
 
