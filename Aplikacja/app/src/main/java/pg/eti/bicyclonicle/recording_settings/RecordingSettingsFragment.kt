@@ -1,15 +1,11 @@
 package pg.eti.bicyclonicle.recording_settings
 
+import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import pg.eti.bicyclonicle.LoadingScreen
 import pg.eti.bicyclonicle.R
-import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
-import pg.eti.bicyclonicle.recordings_library.RecordingsLibraryViewModel
 
 class RecordingSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var recordingsSettingsViewModel: RecordingsSettingsViewModel
@@ -19,9 +15,19 @@ class RecordingSettingsFragment : PreferenceFragmentCompat() {
 
         recordingsSettingsViewModel = RecordingsSettingsViewModel(
             requireContext(),
-            preferenceScreen
+            preferenceScreen,
+            LoadingScreen.getInstance(requireContext(), resources)
         )
 
-        recordingsSettingsViewModel.linkPreferenceOptions()
+        // Find the custom button preference by key
+        val customButtonPreference: Preference? = findPreference("synchronize_button")
+
+        // Set a click listener for the button
+        customButtonPreference?.setOnPreferenceClickListener {
+            // Handle the button click here
+            recordingsSettingsViewModel.synchronizeSettings()
+            true
+        }
+        // TODO: recordingsSettingsViewModel.linkPreferenceOptions()
     }
 }

@@ -11,17 +11,23 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import androidx.core.util.Consumer
+import pg.eti.bicyclonicle.arduino_connection.enums.ArduinoResponse as ar
 import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
-import pg.eti.bicyclonicle.home.HOME_VM_TAG
+
 import java.io.IOException
+import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.Executors
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 
 const val MANAGE_CONN_TAG = "MANAGE_CONN"
 
 // todo: permissions
+// todo: what if arduino will be disconnected after connection
+//  then all modules want to connect
 @SuppressLint("MissingPermission")
 class ConnectionManager private constructor(
     context: Context,
@@ -43,6 +49,7 @@ class ConnectionManager private constructor(
     )
     private var wasAskedToEnableBt = false
 
+    private val responseSemaphore = Semaphore(0)
 
     // todo: permissions
     @SuppressLint("MissingPermission")
@@ -118,12 +125,12 @@ class ConnectionManager private constructor(
 
                     ConnectionStatus.MESSAGE_READ.ordinal -> {
                         val arduinoMsg: String = msg.obj.toString() // Read message from Arduino
-                        Log.i(HOME_VM_TAG, "ARDUINO_MESSAGE: $arduinoMsg")
-//                        when (arduinoMsg.lowercase(Locale.getDefault())) {
-//                            "led is turned on" -> {
-//                                // todo: implement command (API?)
-//                            }
-//                        }
+                        Log.i(MANAGE_CONN_TAG, "ARDUINO_MESSAGE: $arduinoMsg")
+                        when (arduinoMsg.lowercase(Locale.getDefault())) {
+                            ar.EXECUTED.response -> {
+                                responseSemaphore.release()
+                            }
+                        }
                     }
                 }
             }
@@ -180,6 +187,18 @@ class ConnectionManager private constructor(
             prefsManager.setIsArduinoConnected(false)
             ConnectionStatus.NOT_CONNECTED
         }
+    }
+
+    /**
+     * @return True if commands has been executed.
+     */
+    fun sendAndWaitForResponse(commandsString: String, afterWait: Consumer<Boolean>) {
+        val outputStream = mmSocket!!.outputStream
+        outputStream.write(commandsString.encodeToByteArray())
+
+        Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
+        // Now, wait for a response or timeout
+        afterWait.accept(responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS))
     }
 
     private fun askToEnableBluetooth() {

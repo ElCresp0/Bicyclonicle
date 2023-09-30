@@ -16,14 +16,15 @@ class SharedPreferencesManager private constructor(context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("bicyclonicle_prefs", Context.MODE_PRIVATE)
     private val editor: SharedPreferences.Editor = sharedPreferences.edit()
 
-    private val sharedRecordingPreferences: List<RecordingSingleSetting<Any>> = mutableListOf()
-
     init {
         resetAppLifetimeAttributes()
+        // TODO: ask arduino if default settings and check if do i;
+        //  if not the same then synchronise with app
     }
 
     fun isAppFirstStart(): Boolean {
-        return sharedPreferences.getBoolean(gp.IS_APP_FIRST_START.name, true)
+        return true
+// TODO:        return sharedPreferences.getBoolean(gp.IS_APP_FIRST_START.name, true)
     }
 
     fun setIsAppFirstStart(isFirstStart: Boolean) {
@@ -34,15 +35,8 @@ class SharedPreferencesManager private constructor(context: Context) {
     // todo: will this add to shared
     // todo: method to add to changed list
     // todo: get changed list as command
-    fun addRecordingSettingPreference(singleSetting: RecordingSingleSetting) {
-
-        editor.putString(singleSetting.getName(), singleSetting.getValue())
-        editor.apply()
-    }
-
-//    fun addRecordingSettingPreference(singleSetting: RecordingSingleSetting<T>) {
-//        editor.
-//    }
+    // todo: change shared prefs after return message from arduino
+    //  and clear list
 
     fun isArduinoConnected(): Boolean {
         return sharedPreferences.getBoolean(gp.IS_ARDUINO_CONNECTED.name, false)

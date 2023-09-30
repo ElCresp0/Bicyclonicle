@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- TODO: change to string value -->
+    <PreferenceCategory
+        android:title="Synchronize action">
+
+        <Preference
+            android:key="synchronize_button"
+            android:title="Synchronize"
+            android:summary="Perform a custom action" />
+    </PreferenceCategory>
+
     <!-- Resolution preference -->
     <ListPreference
         android:key="key_resolution"
