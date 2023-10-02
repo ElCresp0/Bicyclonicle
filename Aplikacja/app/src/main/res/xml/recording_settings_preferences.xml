@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <Preference
+        android:key="synchronize_button"
+        android:summary="@string/summary_synchronize"
+        android:title="@string/title_synchronize" />
+
     <!-- Resolution preference -->
     <ListPreference
         android:key="key_resolution"
@@ -8,16 +13,18 @@
         android:summary="@string/summary_resolution"
         android:entries="@array/resolution_entries"
         android:entryValues="@array/resolution_values"
-        android:defaultValue="720p"/>
+        android:defaultValue="720"
+        android:enabled="false" />
 
     <!-- Frame rate preference -->
-    <ListPreference
+    <!--<ListPreference
         android:key="key_frame_rate"
         android:title="@string/title_frame_rate"
         android:summary="@string/summary_frame_rate"
         android:entries="@array/frame_rate_entries"
         android:entryValues="@array/frame_rate_values"
-        android:defaultValue="30"/>
+        android:defaultValue="30"
+        android:enabled="false" />-->
 
     <!-- Duration preference -->
     <ListPreference
@@ -26,30 +33,24 @@
         android:summary="@string/summary_duration"
         android:entries="@array/duration_entries"
         android:entryValues="@array/duration_values"
-        android:defaultValue="300"/>
+        android:defaultValue="300"
+        android:enabled="false" />
 
     <!-- Mute sound preference -->
     <CheckBoxPreference
         android:key="key_mute_sound"
         android:title="@string/title_mute_sound"
         android:summary="@string/summary_mute_sound"
-        android:defaultValue="false"/>
+        android:defaultValue="false"
+        android:enabled="false" />
 
     <!-- Show date preference -->
     <CheckBoxPreference
         android:key="key_show_date"
         android:title="@string/title_show_date"
         android:summary="@string/summary_show_date"
-        android:defaultValue="true"/>
-
-    <!-- Codec preference -->
-    <ListPreference
-        android:key="key_codec"
-        android:title="Codec"
-        android:summary="Select the video codec"
-        android:entries="@array/codec_entries"
-        android:entryValues="@array/codec_values"
-        android:defaultValue="h264"/>
+        android:defaultValue="true"
+        android:enabled="false" />
 
 </PreferenceScreen>
 

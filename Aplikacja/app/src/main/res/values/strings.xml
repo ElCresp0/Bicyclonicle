@@ -27,6 +27,10 @@
     <string name="summary_app_version" translatable="false">Latest</string>
 
     <!-- RECORDING SETTINGS (recording_settings_preference.xml) -->
+    <!-- synchronize button -->
+    <string name="title_synchronize" translatable="false">Synchronize</string>
+    <string name="summary_synchronize" translatable="false">Synchronize settings with Arduino</string>
+
     <!-- resolution preference -->
     <string name="title_resolution" translatable="false">Resolution</string>
     <string name="summary_resolution" translatable="false">Select the recording resolution</string>
@@ -52,4 +56,11 @@
     <!-- Codec preference -->
     <string name="title_codec" translatable="false">Codec</string>
     <string name="summary_codec" translatable="false">Select the video codec</string>
+
+    <!-- CONNECTION STATUS MESSAGES -->
+    <string name="connection_status" translatable="false">Connection status</string>
+    <string name="connected" translatable="false">Arduino connected</string>
+    <string name="not_connected" translatable="false">Arduino NOT connected</string>
+    <string name="message_read" translatable="false">Message read</string>
+
 </resources>

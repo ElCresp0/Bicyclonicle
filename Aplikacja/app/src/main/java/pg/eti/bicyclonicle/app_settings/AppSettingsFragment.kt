@@ -1,4 +1,4 @@
-package pg.eti.bicyclonicle.ui.app_settings
+package pg.eti.bicyclonicle.app_settings
 
 import android.content.Context
 import android.content.pm.PackageInfo
@@ -20,9 +20,11 @@ class AppSettingsFragment : PreferenceFragmentCompat() {
         appVersionPreference?.summary = getAppVersionName(requireContext())
     }
 
+    @Suppress("DEPRECATION")
     private fun getAppVersionName(context: Context): String {
         return try {
-            val packageInfo: PackageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+            val packageInfo: PackageInfo = context.packageManager.getPackageInfo(context
+                .packageName, PackageManager.GET_META_DATA)
             packageInfo.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
