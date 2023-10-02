@@ -22,6 +22,7 @@ import java.util.UUID
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import java.util.function.BiConsumer
 
 const val MANAGE_CONN_TAG = "MANAGE_CONN"
 
@@ -31,7 +32,7 @@ const val MANAGE_CONN_TAG = "MANAGE_CONN"
 @SuppressLint("MissingPermission")
 class ConnectionManager private constructor(
     context: Context,
-    private val enableBluetoothByIntent: Consumer<Intent>
+    private val enableBluetoothByIntent: Consumer<Intent>,
 ) {
     // Members for connection to Arduino.
     private var mmSocket: BluetoothSocket? = null
@@ -189,16 +190,25 @@ class ConnectionManager private constructor(
         }
     }
 
+    // TODO: all tests for connectivity:
+    //  connection lost in middle of operation etc.
     /**
      * @return True if commands has been executed.
      */
     fun sendAndWaitForResponse(commandsString: String, afterWait: Consumer<Boolean>) {
-        val outputStream = mmSocket!!.outputStream
-        outputStream.write(commandsString.encodeToByteArray())
+        try {
+            val outputStream = mmSocket!!.outputStream
+            outputStream.write(commandsString.encodeToByteArray())
+        } catch (e: IOException) {
+            throw Exception("Arduino NOT connected!")
+        }
+
 
         Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
         // Now, wait for a response or timeout
-        afterWait.accept(responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS))
+        afterWait.accept(
+            responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS)
+        )
     }
 
     private fun askToEnableBluetooth() {
@@ -225,7 +235,7 @@ class ConnectionManager private constructor(
 
         fun getInstance(
             context: Context,
-            enableBluetoothByIntent: Consumer<Intent>
+            enableBluetoothByIntent: Consumer<Intent>,
         ): ConnectionManager {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: ConnectionManager(context, enableBluetoothByIntent).also {

@@ -1,5 +1,9 @@
 package pg.eti.bicyclonicle.recording_settings
 
+import androidx.preference.CheckBoxPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+
 
 /**
  * Class describes single preference that refers to RecordingSettingName
@@ -8,15 +12,15 @@ package pg.eti.bicyclonicle.recording_settings
  * @author jankejc
  */
 class RecordingSingleSetting(
-    private var name: Name,
+    private var properties: Properties,
     private var value: String
 ) {
-    fun getName(): Name {
-        return name
+    fun getProperties(): Properties {
+        return properties
     }
 
-    fun setName(name: Name) {
-        this.name = name
+    fun setProperties(properties: Properties) {
+        this.properties = properties
     }
 
     fun getValue(): String {
@@ -28,7 +32,7 @@ class RecordingSingleSetting(
     }
 
     fun getAsCommand(): String {
-        return name.name + ":" + value + ";"
+        return properties.key + ":" + value + ";"
     }
 
     /**
@@ -36,12 +40,12 @@ class RecordingSingleSetting(
      *
      * @author jankejc
      */
-    enum class Name(val key: String) {
-        SYNCHRONIZE("synchronize_button"),
-        RESOLUTION("key_resolution"),
-        FRAME_RATE("key_frame_rate"),
-        CLIP_DURATION("key_duration"),
-        MUTE_SOUND("key_mute_sound"),
-        DATE_ON_CLIP("key_show_date")
+    enum class Properties(val key: String, val preferenceClass: Class<*>) {
+        SYNCHRONIZE("synchronize_button", Preference::class.java),
+        RESOLUTION("key_resolution", ListPreference::class.java),
+//        FRAME_RATE("key_frame_rate", ListPreference::class.java),
+        CLIP_DURATION("key_duration", ListPreference::class.java),
+        MUTE_SOUND("key_mute_sound", CheckBoxPreference::class.java),
+        DATE_ON_CLIP("key_show_date", CheckBoxPreference::class.java)
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- TODO: change to string value -->
     <Preference
         android:key="synchronize_button"
         android:summary="@string/summary_synchronize"
@@ -14,18 +13,18 @@
         android:summary="@string/summary_resolution"
         android:entries="@array/resolution_entries"
         android:entryValues="@array/resolution_values"
-        android:defaultValue="720p"
+        android:defaultValue="720"
         android:enabled="false" />
 
     <!-- Frame rate preference -->
-    <ListPreference
+    <!--<ListPreference
         android:key="key_frame_rate"
         android:title="@string/title_frame_rate"
         android:summary="@string/summary_frame_rate"
         android:entries="@array/frame_rate_entries"
         android:entryValues="@array/frame_rate_values"
         android:defaultValue="30"
-        android:enabled="false" />
+        android:enabled="false" />-->
 
     <!-- Duration preference -->
     <ListPreference

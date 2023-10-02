@@ -4,7 +4,6 @@ import pg.eti.bicyclonicle.preferences.GlobalPreferences as gp
 
 import android.content.Context
 import android.content.SharedPreferences
-import pg.eti.bicyclonicle.recording_settings.RecordingSingleSetting
 
 /**
  * It is worth to notice that if shared attribute is created it won't disappear on app reinstall,
@@ -18,13 +17,10 @@ class SharedPreferencesManager private constructor(context: Context) {
 
     init {
         resetAppLifetimeAttributes()
-        // TODO: ask arduino if default settings and check if do i;
-        //  if not the same then synchronise with app
     }
 
     fun isAppFirstStart(): Boolean {
-        return true
-// TODO:        return sharedPreferences.getBoolean(gp.IS_APP_FIRST_START.name, true)
+        return sharedPreferences.getBoolean(gp.IS_APP_FIRST_START.name, true)
     }
 
     fun setIsAppFirstStart(isFirstStart: Boolean) {
@@ -32,11 +28,14 @@ class SharedPreferencesManager private constructor(context: Context) {
         editor.apply()
     }
 
-    // todo: will this add to shared
-    // todo: method to add to changed list
-    // todo: get changed list as command
-    // todo: change shared prefs after return message from arduino
-    //  and clear list
+    fun saveSetting(key: String, value: String) {
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun getSetting(key: String): String {
+        return sharedPreferences.getString(key, "")!!
+    }
 
     fun isArduinoConnected(): Boolean {
         return sharedPreferences.getBoolean(gp.IS_ARDUINO_CONNECTED.name, false)

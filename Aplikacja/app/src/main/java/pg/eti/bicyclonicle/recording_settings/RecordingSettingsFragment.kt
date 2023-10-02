@@ -1,6 +1,5 @@
 package pg.eti.bicyclonicle.recording_settings
 
-import android.content.Context
 import android.os.Bundle
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -28,6 +27,5 @@ class RecordingSettingsFragment : PreferenceFragmentCompat() {
             recordingsSettingsViewModel.synchronizeSettings()
             true
         }
-        // TODO: recordingsSettingsViewModel.linkPreferenceOptions()
     }
 }
