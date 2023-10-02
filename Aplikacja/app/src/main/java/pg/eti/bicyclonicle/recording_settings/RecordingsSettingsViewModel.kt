@@ -16,7 +16,6 @@ import pg.eti.bicyclonicle.LoadingScreen
 import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
-import java.lang.Exception
 import pg.eti.bicyclonicle.recording_settings.RecordingSingleSetting.Properties as settings
 
 
@@ -98,7 +97,7 @@ class RecordingsSettingsViewModel(
             }
 
 
-            val executeAfterWait: (Boolean) -> Unit = { isExecuted ->
+            val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
                 Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
                 alertDialog!!.dismiss()
 
@@ -110,32 +109,26 @@ class RecordingsSettingsViewModel(
 
                 } else {
                     Log.e(REC_SETT_TAG, "COMMANDS NOT EXECUTED")
+
                     rollbackPreferences()
                     disableSettings()
                     setIsEnableSynchronizeButton(true)
                 }
 
                 viewModelScope.launch(Dispatchers.Main) {
-                    // UI on main.
-                    Toast.makeText(context, "Synchronization status: $isExecuted",Toast.LENGTH_SHORT).show()
+                    // UI on main.\
+                    if (message.isEmpty()) {
+                        Toast.makeText(context, "Synchronization status: $isExecuted",Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, message,Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
 
-            try {
-                connectionManager.sendAndWaitForResponse(
-                    commands.toString(),
-                    executeAfterWait
-                )
-            } catch (e: Exception) {
-                viewModelScope.launch(Dispatchers.Main) {
-                    // UI on main.
-                    Toast.makeText(context, e.message.toString(),Toast.LENGTH_SHORT).show()
-                }
-
-                rollbackPreferences()
-                disableSettings()
-                setIsEnableSynchronizeButton(true)
-            }
+            connectionManager.sendAndWaitForResponse(
+                commands.toString(),
+                executeAfterWait
+            )
         }
     }
 

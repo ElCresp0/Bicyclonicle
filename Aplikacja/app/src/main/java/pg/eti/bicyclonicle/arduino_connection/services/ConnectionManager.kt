@@ -195,19 +195,21 @@ class ConnectionManager private constructor(
     /**
      * @return True if commands has been executed.
      */
-    fun sendAndWaitForResponse(commandsString: String, afterWait: Consumer<Boolean>) {
+    fun sendAndWaitForResponse(commandsString: String, afterWait: BiConsumer<Boolean, String>) {
+        val outputStream = mmSocket!!.outputStream
+
+        var message = ""
         try {
-            val outputStream = mmSocket!!.outputStream
             outputStream.write(commandsString.encodeToByteArray())
         } catch (e: IOException) {
-            throw Exception("Arduino NOT connected!")
+            message = "Arduino is NOT connected."
         }
-
 
         Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
         // Now, wait for a response or timeout
         afterWait.accept(
-            responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS)
+            responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS),
+            message
         )
     }
 
