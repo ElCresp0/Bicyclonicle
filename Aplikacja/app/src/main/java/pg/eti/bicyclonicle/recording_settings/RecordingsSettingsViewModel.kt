@@ -43,11 +43,6 @@ class RecordingsSettingsViewModel(
     }
 
     private fun getPreferencesFromSharedPrefs() {
-        // TODO: ??
-//        if (!checkIfArduinoConnected()) {
-//            throw Exception("Arduino is NOT connected!")
-//        }
-
         settings.entries.forEach { entry ->
             // Here must be all types of preferences but synchronize.
             when (entry.preferenceClass) {
@@ -68,14 +63,6 @@ class RecordingsSettingsViewModel(
                 else -> {}
             }
         }
-    }
-
-    // TODO: if go to another fragment ask if he don't want to synchronize
-    //  maybe there is a way to check if something has changed?
-
-    // todo - why
-    private fun checkIfArduinoConnected(): Boolean {
-        return false
     }
 
     fun synchronizeSettings() {
