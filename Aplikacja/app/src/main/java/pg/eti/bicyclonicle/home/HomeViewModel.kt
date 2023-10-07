@@ -2,7 +2,6 @@ package pg.eti.bicyclonicle.home
 
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -49,11 +48,5 @@ class HomeViewModel : ViewModel() {
     fun connectToArduino() {
         _bluetoothStatusText.value =
             getStringResource(connectionManager.connectToArduino().stringResId)
-    }
-
-    fun disconnectToArduino() {
-        // Terminate Bluetooth Connection and close app
-        connectionManager.cancel()
-        Log.i(HOME_FR_TAG, "Stopping connection.")
     }
 }

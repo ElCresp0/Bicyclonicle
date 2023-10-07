@@ -55,7 +55,6 @@ class HomeFragment : Fragment() {
 
         val textBtStatus: TextView = binding.tvBtStatus
         textBtStatus.layoutParams = layoutParamsAboveNavMenu(textBtStatus)
-
         homeViewModel.bluetoothStatusText.observe(viewLifecycleOwner) {
             textBtStatus.text = it
         }

@@ -4,7 +4,8 @@
     <Preference
         android:key="synchronize_button"
         android:summary="@string/summary_synchronize"
-        android:title="@string/title_synchronize" />
+        android:title="@string/title_synchronize"
+        android:enabled="false" />
 
     <!-- Resolution preference -->
     <ListPreference
