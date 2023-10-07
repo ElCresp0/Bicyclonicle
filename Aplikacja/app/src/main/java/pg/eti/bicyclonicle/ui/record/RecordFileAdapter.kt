@@ -30,6 +30,7 @@ class RecordFileAdapter(var context: Context, var arrayList: ArrayList<RecordFil
         icons.setImageBitmap(recordFile.icons !!)
         name.text = recordFile.name
         time.text = recordFile.time
+
         return view
     }
 }
