@@ -45,7 +45,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="-118dp"
             android:layout_marginRight="40dp"
-            android:src="@drawable/sd_icon" />
+            android:src="@drawable/baseline_sd_card_24" />
 
         <ImageView
             android:id="@+id/imagePhone"
@@ -54,7 +54,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="-15dp"
             android:layout_marginRight="20dp"
-            android:src="@drawable/phone" />
+            android:src="@drawable/baseline_phone_android_24" />
 
         <ImageView
             android:id="@+id/recordSettings"
