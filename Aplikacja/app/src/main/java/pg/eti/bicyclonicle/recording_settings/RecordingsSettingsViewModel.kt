@@ -13,6 +13,7 @@ import androidx.preference.PreferenceScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import pg.eti.bicyclonicle.LoadingScreen
+import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
@@ -32,6 +33,10 @@ class RecordingsSettingsViewModel(
     private var changedSettings = mutableMapOf<String, Boolean>()
 
     init {
+        if (!::connectionManager.isInitialized) {
+            connectionManager = ConnectionManager.getExistInstance()
+        }
+
         if (spm.isAppFirstStart()) {
             spm.setIsAppFirstStart(false)
         } else {
@@ -40,6 +45,8 @@ class RecordingsSettingsViewModel(
         previousSettings = getCurrentSettings()
         setOnPreferenceChangeListeners()
         setMapForChangedPrefsCounting()
+
+        setIsEnableSynchronizeButton(checkArduinoConnection())
     }
 
     private fun getPreferencesFromSharedPrefs() {
@@ -65,15 +72,15 @@ class RecordingsSettingsViewModel(
         }
     }
 
+    fun checkArduinoConnection(): Boolean {
+        return connectionManager.getUpdatedArduinoConnectionStatus().stringResId == ConnectionStatus.CONNECTED.stringResId
+    }
+
     fun synchronizeSettings() {
         val currentSettings = getCurrentSettings()
 
         val commands = StringBuilder()
         currentSettings.forEach { setting -> commands.append(setting.getAsCommand()) }
-
-        if (!::connectionManager.isInitialized) {
-            connectionManager = ConnectionManager.getExistInstance()
-        }
 
         viewModelScope.launch(Dispatchers.IO) {
             // Non UI, long lasting operations should be made on other thread.
@@ -103,7 +110,7 @@ class RecordingsSettingsViewModel(
                 }
 
                 viewModelScope.launch(Dispatchers.Main) {
-                    // UI on main.\
+                    // UI on main.
                     if (message.isEmpty()) {
                         Toast.makeText(context, "Synchronization status: $isExecuted",Toast.LENGTH_SHORT).show()
                     } else {
@@ -253,7 +260,7 @@ class RecordingsSettingsViewModel(
         setIsEnableSynchronizeButton(false)
     }
 
-    private fun setIsEnableSynchronizeButton(isEnable: Boolean) {
+    fun setIsEnableSynchronizeButton(isEnable: Boolean) {
         viewModelScope.launch(Dispatchers.Main) {
             preferenceScreen.findPreference<Preference>(
                 RecordingSingleSetting.Properties

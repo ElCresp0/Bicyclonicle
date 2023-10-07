@@ -182,11 +182,21 @@ class ConnectionManager private constructor(
 
         return if (bluetoothStatus == BluetoothStatus.BT_PAIRED_WITH_ARDUINO
             && prefsManager.isArduinoConnected()
+            && ifStillConnected()
         ) {
             ConnectionStatus.CONNECTED
         } else {
             prefsManager.setIsArduinoConnected(false)
             ConnectionStatus.NOT_CONNECTED
+        }
+    }
+
+    private fun ifStillConnected(): Boolean {
+        return try {
+            mmSocket!!.outputStream.write(0)
+            true
+        } catch (e: IOException) {
+            false
         }
     }
 

@@ -9,6 +9,14 @@ import pg.eti.bicyclonicle.R
 class RecordingSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var recordingsSettingsViewModel: RecordingsSettingsViewModel
 
+    override fun onResume() {
+        super.onResume()
+
+        recordingsSettingsViewModel.setIsEnableSynchronizeButton(
+            recordingsSettingsViewModel.checkArduinoConnection()
+        )
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.recording_settings_preferences, rootKey)
 
