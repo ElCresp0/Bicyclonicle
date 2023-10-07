@@ -1,10 +1,6 @@
-package pg.eti.bicyclonicle.ui.recordings_library
+package pg.eti.bicyclonicle.recordings_library
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
-import androidx.appcompat.app.AppCompatActivity
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
@@ -21,8 +17,9 @@ import android.widget.Toast
 import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import pg.eti.bicyclonicle.R
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
-import pg.eti.bicyclonicle.recordings_library.RecordingsLibraryViewModel
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
 import java.io.File
