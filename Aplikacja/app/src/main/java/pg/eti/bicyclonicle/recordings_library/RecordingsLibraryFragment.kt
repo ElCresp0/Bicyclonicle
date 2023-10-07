@@ -22,6 +22,7 @@ import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
+import pg.eti.bicyclonicle.recordings_library.RecordingsLibraryViewModel
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
 import java.io.File
@@ -61,10 +62,6 @@ class RecordingsLibraryFragment : Fragment() {
         val root: View = binding.root
 
         val activity = requireActivity()
-
-        recordingsLibraryViewModel.text.observe(viewLifecycleOwner) {
-            //textView.text = it
-        }
 
         simpleVideoView =  binding.videoView
         gridView = binding.recordGrid
