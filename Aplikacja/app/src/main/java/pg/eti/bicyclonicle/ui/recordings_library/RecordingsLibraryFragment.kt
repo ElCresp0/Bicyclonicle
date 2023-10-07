@@ -78,8 +78,10 @@ class RecordingsLibraryFragment : Fragment() {
         gridView!!.onItemClickListener = OnItemClickListener { parent, v, position, id ->
             //val clickedItem = arrayList!![position]
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+
             simpleVideoView!!.visibility = View.VISIBLE
             gridView!!.visibility = View.INVISIBLE
+
             simpleVideoView!!.setVideoURI(Uri.parse(arrayList!![position].retVideoPath()))
 
             simpleVideoView!!.requestFocus()
