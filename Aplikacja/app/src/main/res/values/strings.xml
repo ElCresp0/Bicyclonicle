@@ -63,4 +63,7 @@
     <string name="not_connected" translatable="false">Arduino NOT connected</string>
     <string name="message_read" translatable="false">Message read</string>
 
+    <!-- HOME FRAGMENT -->
+    <string name="connect_to_arduino" translatable="false">Connect</string>
+
 </resources>

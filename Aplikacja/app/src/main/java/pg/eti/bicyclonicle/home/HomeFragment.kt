@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import pg.eti.bicyclonicle.LoadingScreen
 import pg.eti.bicyclonicle.databinding.FragmentHomeBinding
 
 const val HOME_FR_TAG = "HomeFragment"
@@ -23,13 +24,14 @@ class HomeFragment : Fragment() {
 
     private val myEnableBtIntentLauncher = registerForActivityResult(ActivityResultContracts
         .StartActivityForResult()) {
-        homeViewModel.connectToArduino()
+
+        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
     }
 
     override fun onResume() {
         super.onResume()
 
-        homeViewModel.connectToArduino()
+        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
     }
 
     override fun onCreateView(
@@ -44,7 +46,13 @@ class HomeFragment : Fragment() {
 
         setupViewModelLiveData()
         homeViewModel.initViewModel()
-        homeViewModel.connectToArduino()
+
+        binding.btnConnectToArduino.setOnClickListener {
+            homeViewModel.connectToArduino(binding)
+        }
+
+        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
+
 
         return root
     }
@@ -53,29 +61,13 @@ class HomeFragment : Fragment() {
         // Pass the context.
         homeViewModel.context.value = context
 
+        homeViewModel.loadingScreen.value = LoadingScreen.getInstance(requireContext(), resources)
+
         val textBtStatus: TextView = binding.tvBtStatus
         textBtStatus.layoutParams = layoutParamsAboveNavMenu(textBtStatus)
         homeViewModel.bluetoothStatusText.observe(viewLifecycleOwner) {
             textBtStatus.text = it
         }
-/*
-        homeViewModel.bondedDevices.observe(viewLifecycleOwner) {
-            val recyclerViewBondedDevices = binding.rvBondedDevices
-            recyclerViewBondedDevices.layoutManager = LinearLayoutManager(context)
-            val stringAdapter: StringAdapter
-
-            val bondedDevices = homeViewModel.bondedDevices.value
-            stringAdapter = if (!bondedDevices.isNullOrEmpty()) {
-                // Init RecyclerView for bonded devices.
-                StringAdapter(bondedDevices)
-            } else {
-                StringAdapter(ArrayList())
-            }
-
-            recyclerViewBondedDevices.adapter = stringAdapter
-        }
-
- */
 
         homeViewModel.enableBluetoothIntent.observe(viewLifecycleOwner) {
             myEnableBtIntentLauncher.launch(it)
