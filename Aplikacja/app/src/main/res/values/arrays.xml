@@ -15,18 +15,18 @@
 
     <!-- Resolution options -->
     <string-array name="resolution_entries">
-        <item>720p (HD)</item>
-        <item>1080p (Full HD)</item>
-        <item>4K (Ultra HD)</item>
+        <item>480p (max. ?? fps)</item>
+        <item>600p (max. 25 fps)</item>
+        <item>720p (max. ?? fps)</item>
     </string-array>
     <string-array name="resolution_values">
+        <item>480</item>
+        <item>600</item>
         <item>720</item>
-        <item>1080</item>
-        <item>2160</item>
     </string-array>
 
     <!-- Frame rate options -->
-    <string-array name="frame_rate_entries">
+    <!--<string-array name="frame_rate_entries">
         <item>24 fps</item>
         <item>30 fps</item>
         <item>60 fps</item>
@@ -35,7 +35,7 @@
         <item>24</item>
         <item>30</item>
         <item>60</item>
-    </string-array>
+    </string-array>-->
 
     <!-- Duration options -->
     <string-array name="duration_entries">
