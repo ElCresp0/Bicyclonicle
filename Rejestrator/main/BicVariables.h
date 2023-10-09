@@ -15,6 +15,7 @@
 // Defines for debbuging
 //#define DEBUG_WAIT
 #define RTC_CLOCK
+#define BUTTON
 
 // Defines for EEPROM
 #define EEPROM_SIZE          11
@@ -30,7 +31,7 @@
 
 #define CAMERA_MODEL_AI_THINKER
 
-#ifndef CAMERA_MODEL_AI_THINKER
+#ifdef CAMERA_MODEL_AI_THINKER
 // Pin definition for CAMERA_MODEL_AI_THINKER
 #define PWDN_GPIO_NUM     32
 #define RESET_GPIO_NUM    -1
@@ -51,7 +52,7 @@
 #define PCLK_GPIO_NUM     22
 #endif
 
-#ifndef CAMERA_MODEL_XIAO_ESP32S3
+#ifdef CAMERA_MODEL_XIAO_ESP32S3
 // Pin definition for CAMERA_MODEL_XIAO_ESP32S3
 #define PWDN_GPIO_NUM     -1
 #define RESET_GPIO_NUM    -1

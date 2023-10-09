@@ -87,8 +87,10 @@ void setup() {
    
     delay(10);
 
-    pinMode(BUTTON_GPIO, INPUT_PULLUP);
-    attachInterrupt(BUTTON_GPIO, isr, FALLING);
+    #ifdef BUTTON  
+      pinMode(BUTTON_GPIO, INPUT_PULLUP);
+      attachInterrupt(BUTTON_GPIO, isr, FALLING);
+    #endif
 
     xTaskCreatePinnedToCore(codeCore0Task, "Core0Task", 8192, NULL, 5, &Core0Task, 0);
     xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 5, &Core1Task, 1);
