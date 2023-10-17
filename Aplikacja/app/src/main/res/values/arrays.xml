@@ -15,27 +15,15 @@
 
     <!-- Resolution options -->
     <string-array name="resolution_entries">
-        <item>480p (max. ?? fps)</item>
-        <item>600p (max. 25 fps)</item>
-        <item>720p (max. ?? fps)</item>
+        <item>480x320 (~25 fps)</item>
+        <item>640x480 (~20 fps)</item>
+        <item>1280x720 (~10 fps)</item>
     </string-array>
     <string-array name="resolution_values">
+        <item>320</item>
         <item>480</item>
-        <item>600</item>
         <item>720</item>
     </string-array>
-
-    <!-- Frame rate options -->
-    <!--<string-array name="frame_rate_entries">
-        <item>24 fps</item>
-        <item>30 fps</item>
-        <item>60 fps</item>
-    </string-array>
-    <string-array name="frame_rate_values">
-        <item>24</item>
-        <item>30</item>
-        <item>60</item>
-    </string-array>-->
 
     <!-- Duration options -->
     <string-array name="duration_entries">
