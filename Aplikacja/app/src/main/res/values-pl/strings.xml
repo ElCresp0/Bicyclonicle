@@ -1,9 +1,54 @@
 <resources>
     <string name="app_name">Bicyclonicle</string>
+
+    <!-- menu titles (mobile_navigation.xml) -->
     <string name="title_home">Ekran Główny</string>
     <string name="title_recordings_library">Nagrania</string>
     <string name="title_app_settings">Ustawienia Aplikacji</string>
     <string name="title_recording_settings">Ustawienia Nagrywania</string>
 
+    <!-- APP SETTINGS (app_settings_preferences.xml) -->
+    <!-- font size preference -->
+    <string name="title_font_size">Rozmiar Czcionki</string>
+    <string name="summary_font_size">Wybierz preferowany rozmiar czcionki</string>
+    <string name="dialog_title_font_size">Wybierz Rozmiar Czcionki</string>
+    <string name="default_value_font_size">średni</string>
 
+    <!-- app information preference -->
+    <string name="title_general_info">Informacje Ogólne</string>
+
+    <string name="title_authors">Autorzy</string>
+    <string name="summary_authors">
+        Julia Klingenberg, Jakub Kiliańczyk, Ignacy Wasilewski, Jan Kornacki
+    </string>
+
+    <string name="title_app_version">Wersja Aplikacji</string>
+    <string name="summary_app_version">Najnowszy</string>
+
+    <!-- RECORDING SETTINGS (recording_settings_preference.xml) -->
+    <!-- resolution preference -->
+    <string name="title_resolution">Rozdzielczość</string>
+    <string name="summary_resolution">Wybierz rozdzielczość nagrywania</string>
+
+    <!-- frame rate preference -->
+    <string name="title_frame_rate">Częstotliwość wyświetlania klatek</string>
+    <string name="summary_frame_rate">Wybierz częstotliwość wyświetlania klatek</string>
+
+    <!-- duration preference -->
+    <string name="title_duration">Czas trwania klipu</string>
+    <string name="summary_duration">Wybierz czas trwania klipu</string>
+
+    <!-- mute sound preference -->
+    <string name="title_mute_sound">Wycisz Dźwięk</string>
+    <string name="summary_mute_sound">Wycisz dźwięk podczas nagrywania</string>
+
+    <!-- show date preference -->
+    <string name="title_show_date" translatable="false">Pokaż datę na klipie</string>
+    <string name="summary_show_date" translatable="false">
+        Wyświetl datę nagrania
+    </string>
+
+    <!-- Codec preference -->
+    <string name="title_codec">Kodek</string>
+    <string name="summary_codec">Wybierz kodek wideo</string>
 </resources>
