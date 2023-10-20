@@ -21,6 +21,8 @@ import android.widget.Toast
 import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import pg.eti.bicyclonicle.R
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
@@ -77,6 +79,10 @@ class RecordingsLibraryFragment : Fragment() {
         simpleVideoView!!.visibility = View.INVISIBLE;
         gridView!!.onItemClickListener = OnItemClickListener { parent, v, position, id ->
             //val clickedItem = arrayList!![position]
+            val bottomNavigationView = activity.findViewById<BottomNavigationView>(
+                R.id.nav_view)
+            bottomNavigationView.visibility = View.GONE
+
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
             simpleVideoView!!.visibility = View.VISIBLE
@@ -123,7 +129,6 @@ class RecordingsLibraryFragment : Fragment() {
 
                 arrayList.add(RecordFile(thumb, it.name, out, null, null, it.absolutePath))
             }
-
 
 
         }
