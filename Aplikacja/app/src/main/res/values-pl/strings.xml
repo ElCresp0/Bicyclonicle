@@ -35,15 +35,15 @@
     <string name="summary_frame_rate">Wybierz częstotliwość wyświetlania klatek</string>
 
     <!-- duration preference -->
-    <string name="title_duration">Czas trwania klipu</string>
-    <string name="summary_duration">Wybierz czas trwania klipu</string>
+    <string name="title_duration">Czas trwania nagrania</string>
+    <string name="summary_duration">Wybierz czas trwania nagrania</string>
 
     <!-- mute sound preference -->
     <string name="title_mute_sound">Wycisz Dźwięk</string>
     <string name="summary_mute_sound">Wycisz dźwięk podczas nagrywania</string>
 
     <!-- show date preference -->
-    <string name="title_show_date" translatable="false">Pokaż datę na klipie</string>
+    <string name="title_show_date" translatable="false">Pokaż datę na nagraniu</string>
     <string name="summary_show_date" translatable="false">
         Wyświetl datę nagrania
     </string>
