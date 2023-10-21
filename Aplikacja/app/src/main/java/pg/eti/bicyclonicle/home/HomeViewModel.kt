@@ -3,6 +3,7 @@ package pg.eti.bicyclonicle.home
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -67,12 +68,24 @@ class HomeViewModel : ViewModel() {
      * Results are put in LiveData.
      */
     fun connectToArduino(binding: FragmentHomeBinding) {
-        val alertDialog = loadingScreen.value!!.getShowedLoadingScreen()
-        viewModelScope.launch(Dispatchers.Main) {
-            connectionManager.connectToArduino()
-            alertDialog.dismiss()
-            checkArduinoConnection(binding)
+        if (spm.isPermissionBluetoothConnect()) {
+            val alertDialog = loadingScreen.value!!.getShowedLoadingScreen()
+            viewModelScope.launch(Dispatchers.Main) {
+                connectionManager.connectToArduino()
+                alertDialog.dismiss()
+                checkArduinoConnection(binding)
+            }
+        } else {
+            missingPermissionsDialog()
         }
+    }
+
+    fun missingPermissionsDialog() {
+        val alertDialogBuilder = AlertDialog.Builder(context.value!!)
+        // TODO: string from translate resources
+        alertDialogBuilder.setMessage("The app won't work as it should be without Nearby " +
+                "devices permission. You can activate it in settings.")
+        alertDialogBuilder.create().show()
     }
 
     fun setIsPermissionBluetoothConnect(value: Boolean) {
