@@ -5,23 +5,19 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.util.Log
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
+import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import kotlin.streams.toList
 
 private const val BT_CONN_TAG = "BT_CONN"
 
 class BluetoothManager private constructor (
     private val bluetoothAdapter: BluetoothAdapter?,
-    private val arduinoName: String
+    private val arduinoName: String,
+    private val spm: SharedPreferencesManager
 ) {
-
-    @SuppressLint("MissingPermission")
     fun getBluetoothStatus(): BluetoothStatus {
         if (!isBluetoothSupported()) {
             return BluetoothStatus.NO_BT_SUPPORT
-        }
-
-        if (!areBluetoothEnablePermissionsGranted()) {
-            return BluetoothStatus.NO_BT_PERMISSIONS
         }
 
         if (!isBluetoothEnabled()) {
@@ -64,45 +60,44 @@ class BluetoothManager private constructor (
         }
     }
 
-    private fun areBluetoothEnablePermissionsGranted(): Boolean {
-        // TODO: Request Bluetooth permission if not enabled.
-        //  Maybe with permission manager?
-//        if (!bluetoothAdapter!!.isEnabled) {
-//            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-//            activity.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
-//        }
-        // TODO: log wrong
-        Log.i(BT_CONN_TAG, "Permissions for enabling bluetooth ARE granted.")
-        return true
-    }
-
-    // todo: permissions
-    @SuppressLint("MissingPermission")
+    @SuppressLint("MissingPermission") // in HomeFragment
     fun getArduinoDevice(): BluetoothDevice? {
         if (bluetoothAdapter == null) {
             Log.e(BT_CONN_TAG, "BluetoothAdapter is null!")
             return null
         }
 
-        val arduinoDevice = bluetoothAdapter.bondedDevices.stream()
-            .toList()
-            .find { it.name == arduinoName }
+        if (spm.isPermissionBluetoothConnect()) {
+            val arduinoDevice = bluetoothAdapter.bondedDevices.stream()
+                .toList()
+                .find { it.name == arduinoName }
 
-        if (arduinoDevice == null) {
-            Log.e(BT_CONN_TAG, "Can't find Arduino device.")
-            return null
+            if (arduinoDevice == null) {
+                Log.e(BT_CONN_TAG, "Can't find Arduino device.")
+                return null
+            }
+
+            return bluetoothAdapter.getRemoteDevice(arduinoDevice.address)
         }
-
-        return bluetoothAdapter.getRemoteDevice(arduinoDevice.address)
+        return null
     }
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: BluetoothManager? = null
 
-        fun getInstance(bluetoothAdapter: BluetoothAdapter?, arduinoName: String): BluetoothManager {
+        fun getInstance(
+            bluetoothAdapter: BluetoothAdapter?,
+            arduinoName: String,
+            spm: SharedPreferencesManager
+        ): BluetoothManager {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BluetoothManager(bluetoothAdapter, arduinoName).also { INSTANCE = it }
+                INSTANCE ?: BluetoothManager(
+                    bluetoothAdapter,
+                    arduinoName,
+                    spm
+                ).also { INSTANCE = it }
             }
         }
     }

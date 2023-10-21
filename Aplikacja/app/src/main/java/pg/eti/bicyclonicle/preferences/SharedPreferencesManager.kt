@@ -28,6 +28,24 @@ class SharedPreferencesManager private constructor(context: Context) {
         editor.apply()
     }
 
+    fun isPermissionBluetoothConnect(): Boolean {
+        return sharedPreferences.getBoolean(gp.IS_PERMISSION_BLUETOOTH_CONNECT.name, false)
+    }
+
+    fun setIsPermissionBluetoothConnect(isPermissionBluetoothConnect: Boolean) {
+        editor.putBoolean(gp.IS_PERMISSION_BLUETOOTH_CONNECT.name, isPermissionBluetoothConnect)
+        editor.apply()
+    }
+
+    fun isPermissionBluetoothScan(): Boolean {
+        return sharedPreferences.getBoolean(gp.IS_PERMISSION_BLUETOOTH_SCAN.name, false)
+    }
+
+    fun setIsPermissionBluetoothScan(isPermissionBluetoothScan: Boolean) {
+        editor.putBoolean(gp.IS_PERMISSION_BLUETOOTH_SCAN.name, isPermissionBluetoothScan)
+        editor.apply()
+    }
+
     fun saveSetting(key: String, value: String) {
         editor.putString(key, value)
         editor.apply()

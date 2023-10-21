@@ -1,20 +1,23 @@
 package pg.eti.bicyclonicle.home
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import pg.eti.bicyclonicle.LoadingScreen
 import pg.eti.bicyclonicle.databinding.FragmentHomeBinding
 
-const val HOME_FR_TAG = "HomeFragment"
-
 class HomeFragment : Fragment() {
-
     private var _binding: FragmentHomeBinding? = null
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -25,13 +28,31 @@ class HomeFragment : Fragment() {
     private val myEnableBtIntentLauncher = registerForActivityResult(ActivityResultContracts
         .StartActivityForResult()) {
 
-        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
+        homeViewModel.checkArduinoConnection(binding)
     }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue the action or workflow in your
+                // app.
+                Toast.makeText(context, "są uprawnienia", Toast.LENGTH_SHORT).show()
+            } else {
+                // Explain to the user that the feature is unavailable because the
+                // feature requires a permission that the user has denied. At the
+                // same time, respect the user's decision. Don't link to system
+                // settings in an effort to convince the user to change their
+                // decision.
+                Toast.makeText(context, "nie ma uprawnien", Toast.LENGTH_SHORT).show()
+            }
+        }
 
     override fun onResume() {
         super.onResume()
 
-        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
+        homeViewModel.checkArduinoConnection(binding)
     }
 
     override fun onCreateView(
@@ -44,15 +65,17 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+
         setupViewModelLiveData()
         homeViewModel.initViewModel()
+
+        checkPermissions()
 
         binding.btnConnectToArduino.setOnClickListener {
             homeViewModel.connectToArduino(binding)
         }
 
-        binding.btnConnectToArduino.isEnabled = !homeViewModel.checkArduinoConnection(binding)
-
+        homeViewModel.checkArduinoConnection(binding)
 
         return root
     }
@@ -87,6 +110,7 @@ class HomeFragment : Fragment() {
         return layoutParams
     }
 
+    @SuppressLint("DiscouragedApi", "InternalInsetResource")
     private fun getNavigationBarHeight(): Int {
         val resources = resources
         val resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android")
@@ -95,6 +119,58 @@ class HomeFragment : Fragment() {
         } else {
             // If the device don't support resources.getIdentifier.
             100
+        }
+    }
+
+    private fun checkPermissions() {
+//        TODO("the scan is not showing up")
+//        TODO("when connect first the app is running i think and scan is not shown, but it may be " +
+//                "a problem with scan")
+        isBluetoothConnectPermission(true)
+        isBluetoothScanPermission(true)
+    }
+
+    private fun isBluetoothConnectPermission(ifRequest: Boolean) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) == PackageManager.PERMISSION_GRANTED
+                    || Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+            -> {
+                homeViewModel.setIsPermissionBluetoothConnect(true)
+            }
+
+            else -> {
+                if (ifRequest) {
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    )
+                    isBluetoothConnectPermission(false)
+                }
+            }
+        }
+    }
+
+    private fun isBluetoothScanPermission(ifRequest: Boolean) {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireActivity(),
+                Manifest.permission.BLUETOOTH_SCAN
+            ) == PackageManager.PERMISSION_GRANTED
+                    || Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+            -> {
+                homeViewModel.setIsPermissionBluetoothScan(true)
+            }
+
+            else -> {
+                if (ifRequest) {
+                    requestPermissionLauncher.launch(
+                        Manifest.permission.BLUETOOTH_SCAN
+                    )
+                    isBluetoothScanPermission(false)
+                }
+            }
         }
     }
 

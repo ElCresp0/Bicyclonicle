@@ -10,12 +10,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import android.widget.Toast
 import androidx.core.util.Consumer
-import pg.eti.bicyclonicle.arduino_connection.enums.ArduinoResponse as ar
-import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
-
+import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import java.io.IOException
 import java.util.Locale
 import java.util.UUID
@@ -23,15 +22,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.function.BiConsumer
+import pg.eti.bicyclonicle.arduino_connection.enums.ArduinoResponse as ar
 
 const val MANAGE_CONN_TAG = "MANAGE_CONN"
 
-// todo: permissions
-// todo: what if arduino will be disconnected after connection
-//  then all modules want to connect
-@SuppressLint("MissingPermission")
 class ConnectionManager private constructor(
-    context: Context,
+    private val context: Context,
     private val enableBluetoothByIntent: Consumer<Intent>,
 ) {
     // Members for connection to Arduino.
@@ -46,14 +42,13 @@ class ConnectionManager private constructor(
     private val bluetoothAdapter: BluetoothAdapter? = androidBluetoothManager.adapter
     private var bluetoothManager: BluetoothManager = BluetoothManager.getInstance(
         bluetoothAdapter,
-        "JANEK-LAPTOP"
+        "JANEK-LAPTOP",
+        prefsManager
     )
     private var wasAskedToEnableBt = false
 
     private val responseSemaphore = Semaphore(0)
 
-    // todo: permissions
-    @SuppressLint("MissingPermission")
     fun connectToArduino(): ConnectionStatus {
         val arduinoConnectionStatus = getUpdatedArduinoConnectionStatus()
 
@@ -72,8 +67,9 @@ class ConnectionManager private constructor(
                 wasAskedToEnableBt = true
             }
         } else if (bluetoothStatus == BluetoothStatus.BT_ENABLED_NOT_PAIRED) {
-            //todo: msg
             Log.e(MANAGE_CONN_TAG, "You need to pair arduino!")
+            Toast.makeText(context, "You need to pair arduino!", Toast.LENGTH_SHORT).show()
+
         } else if (bluetoothStatus == BluetoothStatus.BT_PAIRED_WITH_ARDUINO) {
             val arduinoDevice = bluetoothManager.getArduinoDevice()
 
@@ -91,18 +87,25 @@ class ConnectionManager private constructor(
 
                 return ConnectionStatus.CONNECTED
             }
+        } else if (bluetoothStatus == BluetoothStatus.NO_BT_PERMISSIONS) {
+            Toast.makeText(context, "No permissions for bluetooth!", Toast.LENGTH_SHORT).show()
         }
         return ConnectionStatus.NOT_CONNECTED
     }
 
+    @SuppressLint("MissingPermission") // in HomeFragment
     private fun setupSocket(arduinoDevice: BluetoothDevice): BluetoothSocket? {
         var tmpSocket: BluetoothSocket? = null
         val btSppUuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
-        try {
-            tmpSocket = arduinoDevice.createRfcommSocketToServiceRecord(btSppUuid)
-        } catch (e: IOException) {
-            Log.e(MANAGE_CONN_TAG, "Socket's create() method failed", e)
+        if (prefsManager.isPermissionBluetoothConnect()) {
+            try {
+                tmpSocket = arduinoDevice.createRfcommSocketToServiceRecord(btSppUuid)
+            } catch (e: IOException) {
+                Log.e(MANAGE_CONN_TAG, "Socket's create() method failed", e)
+            }
+        } else {
+            Log.e(MANAGE_CONN_TAG, "No permissions to create socket.")
         }
 
         return tmpSocket
@@ -138,6 +141,7 @@ class ConnectionManager private constructor(
         }
     }
 
+    @SuppressLint("MissingPermission") // in HomeFragment
     private fun startConnection(): ConnectionStatus {
         // Cancel discovery because it otherwise slows down the connection.
         if (bluetoothAdapter == null) {
@@ -145,36 +149,40 @@ class ConnectionManager private constructor(
             return ConnectionStatus.NOT_CONNECTED
         }
 
-        bluetoothAdapter.cancelDiscovery()
+        if (prefsManager.isPermissionBluetoothScan()) {
+            bluetoothAdapter.cancelDiscovery()
 
-        try {
-            // Connect to the remote device through the socket. This call blocks
-            // until it succeeds or throws an exception.
-            mmSocket!!.connect()
-            Log.i(MANAGE_CONN_TAG, "Device connected")
-
-        } catch (connectException: IOException) {
-            // Unable to connect; close the socket and return.
             try {
-                mmSocket!!.close()
-                Log.e(MANAGE_CONN_TAG, "Cannot connect to device")
+                // Connect to the remote device through the socket. This call blocks
+                // until it succeeds or throws an exception.
+                mmSocket!!.connect()
+                Log.i(MANAGE_CONN_TAG, "Device connected")
 
-            } catch (closeException: IOException) {
-                Log.e(MANAGE_CONN_TAG, "Could not close the client socket", closeException)
+            } catch (connectException: IOException) {
+                // Unable to connect; close the socket and return.
+                try {
+                    mmSocket!!.close()
+                    Log.e(MANAGE_CONN_TAG, "Cannot connect to device")
+
+                } catch (closeException: IOException) {
+                    Log.e(MANAGE_CONN_TAG, "Could not close the client socket", closeException)
+                }
+
+                prefsManager.setIsArduinoConnected(false)
+
+                return ConnectionStatus.NOT_CONNECTED
             }
 
-            prefsManager.setIsArduinoConnected(false)
+            // The connection attempt succeeded. Perform work associated with
+            // the connection in a separate thread.
+            connectedThread = ConnectedThread(mmSocket!!, connectionHandler!!)
 
-            return ConnectionStatus.NOT_CONNECTED
+            Executors.newSingleThreadExecutor().submit(connectedThread)
+
+            return ConnectionStatus.CONNECTED
         }
 
-        // The connection attempt succeeded. Perform work associated with
-        // the connection in a separate thread.
-        connectedThread = ConnectedThread(mmSocket!!, connectionHandler!!)
-
-        Executors.newSingleThreadExecutor().submit(connectedThread)
-
-        return ConnectionStatus.CONNECTED
+        return ConnectionStatus.NOT_CONNECTED
     }
 
     fun getUpdatedArduinoConnectionStatus(): ConnectionStatus {
@@ -200,8 +208,6 @@ class ConnectionManager private constructor(
         }
     }
 
-    // TODO: all tests for connectivity:
-    //  connection lost in middle of operation etc.
     /**
      * @return True if commands has been executed.
      */
@@ -230,27 +236,20 @@ class ConnectionManager private constructor(
         enableBluetoothByIntent.accept(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
     }
 
-    // Closes the client socket and causes the thread to finish.
-    fun cancel() {
-        try {
-            mmSocket?.close()
-            connectedThread?.cancel()
-            prefsManager.setIsArduinoConnected(false)
-        } catch (e: IOException) {
-            Log.e(MANAGE_CONN_TAG, "Could not close the client socket", e)
-        }
-    }
-
     companion object {
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: ConnectionManager? = null
 
         fun getInstance(
             context: Context,
-            enableBluetoothByIntent: Consumer<Intent>,
+            enableBluetoothByIntent: Consumer<Intent>
         ): ConnectionManager {
             return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: ConnectionManager(context, enableBluetoothByIntent).also {
+                INSTANCE ?: ConnectionManager(
+                    context,
+                    enableBluetoothByIntent
+                ).also {
                     INSTANCE = it
                 }
             }

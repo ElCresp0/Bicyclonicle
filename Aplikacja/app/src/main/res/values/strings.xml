@@ -1,5 +1,6 @@
 <resources>
     <!-- TODO: translate it to Polish -->
+    <!-- TODO: change values of nav bar from polish -->
     <string name="app_name">Bicyclonicle</string>
 
     <!-- menu titles (mobile_navigation.xml) -->

@@ -3,8 +3,6 @@ package pg.eti.bicyclonicle.home
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.appcompat.app.AlertDialog
-import androidx.core.view.isVisible
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,6 +13,7 @@ import pg.eti.bicyclonicle.LoadingScreen
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.databinding.FragmentHomeBinding
+import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 
 
 const val HOME_VM_TAG = "HOME_VM_TAG"
@@ -39,6 +38,8 @@ class HomeViewModel : ViewModel() {
         context.value?.getString(stringResId)
     }
 
+    private lateinit var spm: SharedPreferencesManager
+
     fun initViewModel() {
         // This method needs to be called after passing context in LiveData in Fragment.
         if (context.value != null) {
@@ -46,19 +47,20 @@ class HomeViewModel : ViewModel() {
                 context.value!!,
                 enableBluetoothIntentConsumer
             )
+
+            spm = SharedPreferencesManager.getInstance(context.value!!)
+
         } else {
             Log.e(HOME_VM_TAG, "Context has not been passed!")
         }
     }
 
-    fun checkArduinoConnection(binding: FragmentHomeBinding): Boolean {
-        var status: ConnectionStatus = ConnectionStatus.CONNECTION_STATUS
+    fun checkArduinoConnection(binding: FragmentHomeBinding) {
         viewModelScope.launch(Dispatchers.Main) {
-            status = connectionManager.getUpdatedArduinoConnectionStatus()
+            val status = connectionManager.getUpdatedArduinoConnectionStatus()
             _bluetoothStatusText.value = getStringResource(status.stringResId)
             binding.btnConnectToArduino.isEnabled = status != ConnectionStatus.CONNECTED
         }
-        return status.stringResId == ConnectionStatus.CONNECTED.stringResId
     }
 
     /**
@@ -66,10 +68,18 @@ class HomeViewModel : ViewModel() {
      */
     fun connectToArduino(binding: FragmentHomeBinding) {
         val alertDialog = loadingScreen.value!!.getShowedLoadingScreen()
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
             connectionManager.connectToArduino()
             alertDialog.dismiss()
             checkArduinoConnection(binding)
         }
+    }
+
+    fun setIsPermissionBluetoothConnect(value: Boolean) {
+        spm.setIsPermissionBluetoothConnect(value)
+    }
+
+    fun setIsPermissionBluetoothScan(value: Boolean) {
+        spm.setIsPermissionBluetoothScan(value)
     }
 }
