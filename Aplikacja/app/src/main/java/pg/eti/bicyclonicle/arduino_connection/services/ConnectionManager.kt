@@ -15,6 +15,7 @@ import pg.eti.bicyclonicle.arduino_connection.enums.ArduinoResponse as ar
 import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
+import pg.eti.bicyclonicle.recording_settings.ExecuteAfterWait
 
 import java.io.IOException
 import java.util.Locale
@@ -46,7 +47,7 @@ class ConnectionManager private constructor(
     private val bluetoothAdapter: BluetoothAdapter? = androidBluetoothManager.adapter
     private var bluetoothManager: BluetoothManager = BluetoothManager.getInstance(
         bluetoothAdapter,
-        "JANEK-LAPTOP"
+        "ESP32test"
     )
     private var wasAskedToEnableBt = false
 
@@ -205,7 +206,7 @@ class ConnectionManager private constructor(
     /**
      * @return True if commands has been executed.
      */
-    fun sendAndWaitForResponse(commandsString: String, afterWait: BiConsumer<Boolean, String>) {
+    fun sendAndWaitForResponse(commandsString: String, afterWait: ExecuteAfterWait) {
         val outputStream = mmSocket!!.outputStream
 
         var message = ""
@@ -217,10 +218,9 @@ class ConnectionManager private constructor(
 
         Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
         // Now, wait for a response or timeout
-        afterWait.accept(
-            responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS),
-            message
-        )
+        afterWait.setProperties(responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS), message)
+        var executeAfterWait = Thread(afterWait)
+        executeAfterWait.start()
     }
 
     private fun askToEnableBluetooth() {
