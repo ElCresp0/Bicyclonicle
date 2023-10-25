@@ -1,10 +1,9 @@
 package pg.eti.bicyclonicle.recordings_library
 
-import android.content.pm.ActivityInfo
+import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -12,13 +11,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
-import android.widget.MediaController
-import android.widget.Toast
-import android.widget.VideoView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import pg.eti.bicyclonicle.R
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
@@ -33,24 +27,16 @@ class RecordingsLibraryFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    var gridView: GridView ? = null
-    var arrayList: ArrayList<RecordFile> ? = null
-    var recordFileAdapter: RecordFileAdapter ? = null
-    var simpleVideoView: VideoView? = null
-    var mediaControls: MediaController? = null
+    private lateinit var gridView: GridView
+    private lateinit var arrayList: ArrayList<RecordFile>
+    private lateinit var recordFileAdapter: RecordFileAdapter
 
     private lateinit var recordingsLibraryViewModel: RecordingsLibraryViewModel
-
-    override fun onResume() {
-        super.onResume()
-
-        recordingsLibraryViewModel.checkArduinoConnection()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         recordingsLibraryViewModel =
             ViewModelProvider(this).get(RecordingsLibraryViewModel::class.java)
@@ -58,66 +44,35 @@ class RecordingsLibraryFragment : Fragment() {
         _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val activity = requireActivity()
-
-        simpleVideoView =  binding.videoView
         gridView = binding.recordGrid
+
         arrayList = ArrayList()
         arrayList = setDataList()
 
-        recordFileAdapter = RecordFileAdapter(requireContext(),arrayList!!)
-        gridView?.adapter = recordFileAdapter
-
-        if (mediaControls == null) {
-            // creating an object of media controller class
-            mediaControls = MediaController(requireContext())
-
-            // set the anchor view for the video view
-            mediaControls!!.setAnchorView(this.simpleVideoView)
+        recordFileAdapter = RecordFileAdapter(requireContext(), arrayList)
+        gridView.adapter = recordFileAdapter
+        gridView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
+            val intent = Intent(requireContext(), VideoViewActivity::class.java)
+            intent.putExtra("videoViewUri", arrayList[position].retVideoPath())
+            startActivity(intent)
         }
-
-        simpleVideoView!!.setMediaController(mediaControls)
-        simpleVideoView!!.visibility = View.INVISIBLE;
-        gridView!!.onItemClickListener = OnItemClickListener { parent, v, position, id ->
-            //val clickedItem = arrayList!![position]
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-            simpleVideoView!!.visibility = View.VISIBLE
-            gridView!!.visibility = View.INVISIBLE
-
-            simpleVideoView!!.setVideoURI(Uri.parse(arrayList!![position].retVideoPath()))
-
-            simpleVideoView!!.requestFocus()
-
-            simpleVideoView!!.start()
-
-        }
-        simpleVideoView!!.setOnCompletionListener {
-            simpleVideoView!!.visibility = View.INVISIBLE
-            gridView!!.visibility = View.VISIBLE
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            //Toast.makeText(applicationContext, "Video completed", Toast.LENGTH_LONG).show()
-            true
-        }
-
-        setupViewModelLiveData()
-        recordingsLibraryViewModel.initViewModel()
-        recordingsLibraryViewModel.checkArduinoConnection()
 
         return root
     }
 
+    private fun setDataList(): ArrayList<RecordFile> {
 
-    private fun setDataList() :ArrayList<RecordFile>{
-
-        var arrayList: ArrayList<RecordFile> = ArrayList()
+        val arrayList: ArrayList<RecordFile> = ArrayList()
         val metaRetriever = MediaMetadataRetriever()
-        var thumb: Bitmap? = null
+        var thumb: Bitmap?
         //"/data/data/pg.eti.bicyclonicle/files"
         File(this.activity?.filesDir?.absolutePath).walk().forEach {
             println(it)
-            if(it.extension == "mp4"){
-                thumb = ThumbnailUtils.createVideoThumbnail(it.absolutePath, MediaStore.Images.Thumbnails.MINI_KIND)
+            if (it.extension == "mp4") {
+                thumb = ThumbnailUtils.createVideoThumbnail(
+                    it.absolutePath,
+                    MediaStore.Images.Thumbnails.MINI_KIND
+                )
                 metaRetriever.setDataSource(it.absolutePath)
 
                 val duration =
@@ -132,24 +87,13 @@ class RecordingsLibraryFragment : Fragment() {
             }
 
 
-
         }
         return arrayList
     }
 
-    private fun saveRecordToSD(){}
+    private fun saveRecordToSD() {}
 
-    private fun saveRecordToTele(){}
-
-
-    private fun setupViewModelLiveData() {
-        // Pass the context.
-        recordingsLibraryViewModel.context.value = context
-
-        recordingsLibraryViewModel.isArduinoConnectedText.observe(viewLifecycleOwner) {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-        }
-    }
+    private fun saveRecordToTele() {}
 
     override fun onDestroyView() {
         super.onDestroyView()

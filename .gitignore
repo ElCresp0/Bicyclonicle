@@ -53,5 +53,5 @@ build
 captures/
 *.png
 *.aab
+*.mp4
 
-test*
