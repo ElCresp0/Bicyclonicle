@@ -36,7 +36,9 @@ class ExecuteAfterWait : Runnable {
     public override fun run()
     {
         Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
-        alertDialog!!.dismiss()
+        if (alertDialog != null) {
+            alertDialog.dismiss()
+        }
 
         if (isExecuted) {
             Log.e(REC_SETT_TAG, "COMMANDS EXECUTED")
