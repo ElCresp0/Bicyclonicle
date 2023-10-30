@@ -290,7 +290,7 @@ void SDCardController::findOldestFile(File dir, char* oldestFileName) {
           file.readBytes(buffer, 4);
           file.seek(0x110);
           char saveByte = file.peek();
-          if (strcmp(buffer, "RIFF") == 0 && saveByte == 0x01) {
+          if (strcmp(buffer, "RIFF") == 0 && !getSavedByte(file)) {
             strcpy(oldestFileName, fileName);
           }
         }
