@@ -12,4 +12,9 @@ void fatalError();
 
 uint8_t writeLittleEndian(uint32_t value, File file, int32_t offset, relative position);
 
+uint32_t getVideoLengthInSeconds(File file);
+
+bool getSavedByte(File file);
+
+void setSavedByte(File file, bool ifSaved);
 #endif
