@@ -4,40 +4,8 @@
 void SDCardController::initialize() {
 
   Serial.println("Initialising SD card");
-
-  sdmmc_host_t host = SDMMC_HOST_DEFAULT(); 
-  sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
-
-  // Changing bus width to enable using gpio 4, 12 and 13
-  slot_config.width = 1;
-  host.flags = SDMMC_HOST_FLAG_1BIT; 
-
-  // Set up the mount configuration for the FAT filesystem on the SD card
-  esp_vfs_fat_sdmmc_mount_config_t mount_config = 
-  {
-    .format_if_mount_failed = false,  // Do not format the card if mounting fails
-    .max_files = 2,  // Maximum number of files that can be opened at the same time
-  };
   
-  // Pointer to the SDMMC card structure
-  sdmmc_card_t *card;
-
-  // Mount the FAT filesystem from the SD card to the "/sdcard" directory
-  esp_err_t ret = esp_vfs_fat_sdmmc_mount("/sdcard", &host, &slot_config, &mount_config, &card);
-
-  // Check if the mounting was successful
-  if (ret == ESP_OK) 
-  {
-    Serial.println("SD card mounted");
-  }
-  else  
-  { 
-    Serial.print("SD card initialisation error ");
-    Serial.println(esp_err_to_name(ret));
-    fatalError();
-  }
-
-  if (SD_MMC.begin("/sdcard", true)) {
+  if (SD_MMC.begin("/sdcard", SD_1_WIRE_MODE)) {
       Serial.println("SD card ready");
   }
   else
@@ -57,15 +25,17 @@ bool SDCardController::startFile()
       now.toString(currentDateTime);
     #endif
 
-    char AVIFilename[AVI_NAME_LENGTH] = "/sdcard/VID";
+    char AVIFilename[AVI_NAME_LENGTH] = "/VID";
     strcat(AVIFilename, currentDateTime);
     strcat(AVIFilename, ".avi");
 
-    aviFile = fopen(AVIFilename, "w");
-    if (aviFile == NULL)
+    aviFile = SD_MMC.open(AVIFilename, FILE_WRITE);
+
+    if (!aviFile)
     {
         Serial.print ("Unable to open AVI file ");
         Serial.println(AVIFilename);
+        Serial.println(aviFile);
         Serial.println(strerror(errno));
         return false;
     }
@@ -73,19 +43,19 @@ bool SDCardController::startFile()
     Serial.print(AVIFilename);
     Serial.println(" opened.");
     
-    size_t written = fwrite(aviHeader, 1, sizeof(aviHeader), aviFile);
+    size_t written = aviFile.write(aviHeader, sizeof(aviHeader));
     if (written != sizeof(aviHeader))
     {
         Serial.println("Unable to write header to AVI file");
-        fclose(aviFile);
+        aviFile.close();
         return false;
     }
 
-    idx1File = fopen("/sdcard/idx1.tmp", "w+");
-    if (idx1File == NULL)
+    idx1File = SD_MMC.open("idx1.tmp", "w+");
+    if (!idx1File)
     {
         Serial.println ("Unable to open idx1 file for read/write");
-        fclose(aviFile);
+        aviFile.close();
         return false;
     }
 
@@ -138,14 +108,14 @@ void SDCardController::closeFile(bool buttonPressed, uint32_t fileFramesTotalSiz
     writeLittleEndian(fileFramesWritten * 8 + fileFramesTotalSize + filePadding, aviFile, 0x115, FROM_START);
 
     // Move the write head back to the end of the AVI file.
-    fseek(aviFile, 0, SEEK_END);
+    aviFile.seek(0, SeekEnd);
 
 
     // Add the idx1 section to the end of the AVI file
     writeIdx1Chunk();
 
 
-    fclose(aviFile);   
+    aviFile.close();   
 
     Serial.print("File closed, size: ");
     Serial.println(AVI_HEADER_SIZE + fileFramesWritten * 8 + fileFramesTotalSize + filePadding + (8 + 16 * fileFramesWritten));
@@ -155,9 +125,9 @@ void SDCardController::closeFile(bool buttonPressed, uint32_t fileFramesTotalSiz
 // idx1 chunk is optional, but it is facilitating efficient navigation and synchronization of audio and video streams
 void SDCardController::writeIdx1Chunk()
 {
-    size_t bytesWritten = 0;
+    int bytesWritten = 0;
 
-    bytesWritten = fwrite(bufferidx1, 1, 4, aviFile);
+    bytesWritten = aviFile.write(bufferidx1, 4);
     if (bytesWritten != 4)
     {
         Serial.println("Unable to write idx1 chunk header to AVI file");
@@ -173,35 +143,35 @@ void SDCardController::writeIdx1Chunk()
 
 
     // We need to read the idx1 file back in, so move the read head to the start of the idx1 file.
-    fseek(idx1File, 0, SEEK_SET);
+    idx1File.seek(0, SeekSet);
 
     // For each frame, write a sub chunk to the AVI file (offset & size are read from the idx file)
     char readBuffer[8];
     for (uint32_t x = 0; x < fileFramesWritten; x++)
     {
         // Read the offset & size from the idx file.
-        bytesWritten = fread(readBuffer, 1, 8, idx1File);
+        bytesWritten = idx1File.read((uint8_t*)readBuffer, 8);
         if (bytesWritten != 8)
         {
             Serial.println("Unable to read from idx file");
             return;
         }
 
-        bytesWritten = fwrite(buffer00dc, 1, 4, aviFile);
+        bytesWritten = aviFile.write(buffer00dc, 4);
         if (bytesWritten != 4)
         {
             Serial.println("Unable to write 00dc to AVI file idx");
             return;
         }
 
-        bytesWritten = fwrite(buffer0000, 1, 4, aviFile);
+        bytesWritten = aviFile.write(buffer0000, 4);
         if (bytesWritten != 4)
         {
             Serial.println("Unable to write flags to AVI file idx");
             return;
         }
 
-        bytesWritten = fwrite(readBuffer, 1, 8, aviFile);
+        bytesWritten = aviFile.write((uint8_t*)readBuffer, 8);
         if (bytesWritten != 8)
         {
             Serial.println("Unable to write offset & size to AVI file idx");
@@ -209,7 +179,7 @@ void SDCardController::writeIdx1Chunk()
         }
     }
 
-    fclose(idx1File);
+    idx1File.close();
 }
 
 void SDCardController::addToFile(camera_fb_t *frame)
@@ -220,10 +190,10 @@ void SDCardController::addToFile(camera_fb_t *frame)
   uint8_t paddingByte = frame->len & 0x00000001;
 
   // Keep track of the current position in the file relative to the start of the movi section.  This is used to update the idx1 file.
-  uint32_t frameOffset = ftell(aviFile) - 285;
+  uint32_t frameOffset = aviFile.position() - 285;
 
   // Add the chunk header "00dc" to the file.
-  bytesWritten = fwrite(buffer00dc, 1, 4, aviFile);
+  bytesWritten = aviFile.write(buffer00dc, 4);
   if (bytesWritten != 4)
   {
       Serial.println("Unable to write 00dc header to AVI file");
@@ -240,7 +210,7 @@ void SDCardController::addToFile(camera_fb_t *frame)
   }
 
   // Write the frame from the camera.
-  bytesWritten = fwrite(frame->buf, 1, frame->len, aviFile);
+  bytesWritten = aviFile.write(frame->buf, frame->len);
   if (bytesWritten != frame->len)
   {
       Serial.println("Unable to write frame to AVI file");
@@ -253,10 +223,10 @@ void SDCardController::addToFile(camera_fb_t *frame)
 
   // The frame from the camera contains a chunk header of JFIF (bytes 7-10) that we want to replace with AVI1.
   // So we move the write head back to where the frame was just written + 6 bytes.
-  fseek(aviFile, (bytesWritten - 6) * -1, SEEK_END);
+  aviFile.seek((bytesWritten - 6) * -1, SeekEnd);
 
   // Then overwrite with the new chunk header value of AVI1.
-  bytesWritten = fwrite(bufferAVI1, 1, 4, aviFile);
+  bytesWritten = aviFile.write(bufferAVI1, 4);
   if (bytesWritten != 4)
   {
       Serial.println("Unable to write AVI1 to AVI file");
@@ -265,12 +235,12 @@ void SDCardController::addToFile(camera_fb_t *frame)
 
 
   // Move the write head back to the end of the file.
-  fseek(aviFile, 0, SEEK_END);
+  aviFile.seek(0, SeekEnd);
 
   // If required, add the padding to the file.
   if(paddingByte > 0)
   {
-      bytesWritten = fwrite(buffer0000, 1, paddingByte, aviFile);
+      bytesWritten = aviFile.write(buffer0000, paddingByte);
       if (bytesWritten != paddingByte)
       {
           Serial.println("Unable to write padding to AVI file");

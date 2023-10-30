@@ -29,6 +29,9 @@ void CameraController::initialize() {
     config.jpeg_quality = 16;
     config.fb_count = 1;
 
+    Serial.print("Resoution: ");
+    Serial.println(vid_config.resolution);
+
     if(psramFound()){
       config.fb_count = 2;
       Serial.println("Using psram"); 
@@ -67,16 +70,24 @@ uint32_t CameraController::record(){
             captureFrame();
             
             #ifdef DEBUG_SAVING_TIME
+              uint32_t savingMillis = millis()-lastPictureTaken;
               Serial.println("Saving time: ");
-              Serial.println(millis()-lastPictureTaken);  
+              Serial.println(savingMillis);  
+              float fps = 1000.0 / savingMillis;
+              Serial.printf("FPS: %.2f\n", fps);
             #endif        
         }
 
         delay(1);
     }
 
-   Serial.println("Recording ended");
-   return fileFramesTotalSize;
+    uint32_t durationMillis = millis() - startTime;
+
+    float fps = (float)fileFramesCaptured / (durationMillis / 1000.0);
+
+    Serial.printf("Avarage FPS: %.2f\n", fps);
+    Serial.println("Recording ended");
+    return fileFramesTotalSize;
 }
 
 void CameraController::captureFrame() {

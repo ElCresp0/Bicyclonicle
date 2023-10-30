@@ -16,6 +16,7 @@
 //#define DEBUG_WAIT
 #define RTC_CLOCK
 #define BUTTON
+#define SD_1_WIRE_MODE true             // have to be true if one of pins 4, 12, 13 is used somewhere
 
 // Defines for EEPROM
 #define EEPROM_SIZE          11
@@ -80,14 +81,14 @@
     2 FRAMESIZE_QCIF,     // 176x144
     3 FRAMESIZE_HQVGA,    // 240x176
     4 FRAMESIZE_240X240,  // 240x240
-    5 FRAMESIZE_QVGA,     // 320x240
-    6 FRAMESIZE_CIF,      // 400x296
-    7 FRAMESIZE_HVGA,     // 480x320
-    8 FRAMESIZE_VGA,      // 640x480
+    5 FRAMESIZE_QVGA,     // 320x240 max: 77fps, avg: 46fps 
+    6 FRAMESIZE_CIF,      // 400x296 max: 76fps, avg: 42fps 
+    7 FRAMESIZE_HVGA,     // 480x320  max: 52fps, avg: 25fps 
+    8 FRAMESIZE_VGA,      // 640x480 max: 33fps, avg: 22fps
     9 FRAMESIZE_SVGA,     // 800x600  max: 25fps DEFAULT
-    10 FRAMESIZE_XGA,      // 1024x768
-    11 FRAMESIZE_HD,       // 1280x720
-    12 FRAMESIZE_SXGA,     // 1280x1024
+    10 FRAMESIZE_XGA,      // 1024x768  max: 16fps, avg: 11fps 
+    11 FRAMESIZE_HD,       // 1280x720  max: 16fps, avg: 10fps 
+    12 FRAMESIZE_SXGA,     // 1280x1024  max: 14fps, avg: 8fps 
     13 FRAMESIZE_UXGA,     // 1600x1200 max: 6fps
 */
 struct video_config_t{

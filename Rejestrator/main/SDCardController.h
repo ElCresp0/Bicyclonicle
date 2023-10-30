@@ -26,8 +26,8 @@ private:
 
     int AVI_NAME_LENGTH             = 30; 
 
-    FILE *aviFile;
-    FILE *idx1File;                               // Temporary file used to hold the index information
+    File aviFile;
+    File idx1File;                               // Temporary file used to hold the index information
     void writeIdx1Chunk();
     void calculateFps();
     void updateResolution();
