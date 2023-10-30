@@ -14,8 +14,8 @@
 
 // Defines for debbuging
 //#define DEBUG_WAIT
-#define RTC_CLOCK
-#define BUTTON
+//#define RTC_CLOCK
+//#define BUTTON
 #define SD_1_WIRE_MODE true             // have to be true if one of pins 4, 12, 13 is used somewhere
 
 // Defines for EEPROM
@@ -84,8 +84,8 @@
     5 FRAMESIZE_QVGA,     // 320x240 max: 77fps, avg: 46fps 
     6 FRAMESIZE_CIF,      // 400x296 max: 76fps, avg: 42fps 
     7 FRAMESIZE_HVGA,     // 480x320  max: 52fps, avg: 25fps 
-    8 FRAMESIZE_VGA,      // 640x480 max: 33fps, avg: 22fps
-    9 FRAMESIZE_SVGA,     // 800x600  max: 25fps DEFAULT
+    8 FRAMESIZE_VGA,      // 640x480 max: 33fps, avg: 22fps DEFAULT
+    9 FRAMESIZE_SVGA,     // 800x600  max: 25fps 
     10 FRAMESIZE_XGA,      // 1024x768  max: 16fps, avg: 11fps 
     11 FRAMESIZE_HD,       // 1280x720  max: 16fps, avg: 10fps 
     12 FRAMESIZE_SXGA,     // 1280x1024  max: 14fps, avg: 8fps 
