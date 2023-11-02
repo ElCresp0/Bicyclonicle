@@ -12,7 +12,7 @@ import pg.eti.bicyclonicle.preferences.SharedPreferencesManager
 class ExecuteAfterWait : Runnable {
     var isExecuted: Boolean = true
     var message: String = ""
-    var alertDialog: AlertDialog
+//    var alertDialog: AlertDialog
     var currentSettings: List<RecordingSingleSetting>
     var rsvm: RecordingsSettingsViewModel
 
@@ -27,18 +27,18 @@ class ExecuteAfterWait : Runnable {
         }
     }
 
-    public constructor(recordingsSettingsViewModel: RecordingsSettingsViewModel, currentSettings: List<RecordingSingleSetting>, alertDialog: AlertDialog) {
+    public constructor(recordingsSettingsViewModel: RecordingsSettingsViewModel, currentSettings: List<RecordingSingleSetting>) {
         this.rsvm = recordingsSettingsViewModel
         this.currentSettings = currentSettings
-        this.alertDialog = alertDialog
+//        this.alertDialog = alertDialog
     }
 
     public override fun run()
     {
         Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
-        if (alertDialog != null) {
-            alertDialog.dismiss()
-        }
+//        if (alertDialog != null) {
+//            alertDialog.dismiss()
+//        }
 
         if (isExecuted) {
             Log.e(REC_SETT_TAG, "COMMANDS EXECUTED")

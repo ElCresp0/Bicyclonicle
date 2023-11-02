@@ -90,17 +90,17 @@ class RecordingsSettingsViewModel(
 
         viewModelScope.launch(Dispatchers.IO) {
             // Non UI, long lasting operations should be made on other thread.
-            var alertDialog: AlertDialog? = null
-            viewModelScope.launch(Dispatchers.Main) {
-                // UI on main.
-                alertDialog = loadingScreen.getShowedLoadingScreen()
-            }
+//            var alertDialog: AlertDialog? = null
+//            viewModelScope.launch(Dispatchers.Main) {
+//                // UI on main.
+//                alertDialog = loadingScreen.getShowedLoadingScreen()
+//            }
 
             // robie obiekt dziedziczacy po thread z dwoma polami do ustawienia, przekazuje go tam, tam ustawiam i odpalam
 
             connectionManager.sendAndWaitForResponse(
                 commands.toString(),
-                ExecuteAfterWait(rsvm, currentSettings, alertDialog!!)
+                ExecuteAfterWait(rsvm, currentSettings)
             )
         }
     }
