@@ -47,11 +47,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             if (socket.isConnected && socket.inputStream.available() != 0) {
-//                val c = socket.inputStream.read().toChar()
-//                if (c.isLetter() || specialChars.contains(c)) {
-//                    bufferReader.put(c.toString())
-//                    Log.i("BT", "received char: ${bufferReader.last()}")
-//                }
+               val b = socket.inputStream.read().toByte()
+               val c = Char(b.toUInt().toInt());
+               if (c.isLetter() || specialChars.contains(c)) {
+                   bufferReader.put(b)
+                   Log.i("BT", "received char: $c")
+               }
                 bufferReader.put(socket.inputStream.read().toByte())
             }
         }
