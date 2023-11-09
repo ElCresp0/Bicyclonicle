@@ -350,8 +350,9 @@ std::string SDCardController::listFiles()
     if (file.endsWith(".avi") || file.endsWith(".mp4") || file.endsWith(".png"))
     // TODO: leave only .avi, other formats are for tests
     {
-      result.append(file.c_str());
-      result.append(";");
+      Serial.printf("file: %s\n", file.c_str());
+      result.append(file.c_str(), file.length());
+      result.append({';'});
     }
     file = root.getNextFileName();
   }

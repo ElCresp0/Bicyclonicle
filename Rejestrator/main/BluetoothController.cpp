@@ -14,14 +14,14 @@ void BluetoothController::listFiles()
 {
     Serial.println("received command to list files");
     std::string out = sdCardController->listFiles();
-    out.append(";executed;");
+    out.append("executed;");
     sendMessage(out);
 }
 
 void BluetoothController::sendMessage(std::string msg)
 {
-    Serial.printf("sending message: %s", msg);
-    SerialBT.printf(" %s", msg);
+    Serial.printf("sending message: %s\n", msg.c_str());
+    SerialBT.printf(" %s", msg.c_str());
 }
 
 void BluetoothController::sendVideo(std::string name)
@@ -95,7 +95,7 @@ void BluetoothController::run()
                 else
                 {
                     // input contains a single command
-                    if (input.compare("ls"))
+                    if (input.compare("ls") == 0)
                     {
                         listFiles();
                     }
