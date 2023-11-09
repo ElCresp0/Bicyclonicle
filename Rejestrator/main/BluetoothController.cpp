@@ -7,6 +7,7 @@ void BluetoothController::initialize()
      * */
     Serial.println("Initializing blueatooth controller");
     SerialBT.begin("Bicyclonicle");
+    input = "";
 }
 
 void BluetoothController::listFiles()
@@ -55,46 +56,62 @@ void BluetoothController::run()
         if (SerialBT.available())
         {
             char in = SerialBT.read();
+            Serial.printf("received: %1c\n", in);
             if (in == ';')
             {
-                size_t strpos = input.find(':', 0);
-                if (strpos != std::string::npos)
+                if (input.find("error") != std::string::npos)
+                {
+                    // rollback
+                    Serial.println("android error: rolling back");
+                    input.clear();
+                    continue;
+                }
+                size_t keyVal = input.find(':', 0);
+                if (keyVal != std::string::npos)
                 {
                     // input contains a key-value pair
-                    std::string key = input.substr(0, strpos);
-                    std::string value = input.substr(strpos + 1);
-                    if (key == "key1")
+                    Serial.printf("received keyval: %s // ':' is at: %d\n", input.c_str(), keyVal);
+                    Serial.println("received keyval:");
+                    Serial.println(input.c_str());
+                    std::string key = input.substr(0, keyVal);
+                    std::string value = input.substr(keyVal + 1);
+                    if (key.compare("key1") == 0)
                     {
-                        Serial.printf("received key1 of value: %s\n", value);
+                        Serial.printf("received key1 of value: %s\n", value.c_str());
                     }
-                    else if (key == "key2")
+                    else if (key.compare("key2") == 0)
                     {
-                        Serial.printf("received key2 of value: %s\n", value);
+                        Serial.printf("received key2 of value: %s\n", value.c_str());
                     }
-                    else if (key == "sendVideo")
+                    else if (key.compare("sendVideo") == 0)
                     {
                         sendVideo(value);
                     }
                     else
                     {
-                        Serial.printf("reseived unexpected key: %s of value: %s\n", key, value);
+                        Serial.printf("received unexpected key: %s of value: %s\n", key.c_str(), value.c_str());
                     }
                 }
                 else
                 {
                     // input contains a single command
-                    if (input == "ls")
+                    if (input.compare("ls"))
                     {
                         listFiles();
                     }
                     else
                     {
-                        Serial.printf("received unknown command: %s\n", input);
+                        Serial.printf("received unknown command: %s\n", input.c_str());
                     }
                 }
+                input.clear();
             }
-            else if (in == ':' || isalpha(in))
+            else if (in == ':' || isalnum(in))
                 input.append({in});
+            else
+            {
+                Serial.printf("not appending: %1c\n", in);
+            }
             // else: it's some noise
         }
     }
