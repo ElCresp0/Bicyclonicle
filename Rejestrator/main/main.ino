@@ -1,17 +1,19 @@
-#include "CameraController.h"
+// #include "CameraController.h"
 #include "SDCardController.h"
+#include "BluetoothController.h"
 #include "BicVariables.h"
 #include "Wire.h"
 
 bool buttonPressed = false;
 
-RTC_DS3231 rtc;
+// RTC_DS3231 rtc;
 
 TaskHandle_t Core0Task;
 TaskHandle_t Core1Task;
 
-CameraController cameraController;
+// CameraController cameraController;
 SDCardController sdCardController;
+BluetoothController bluetoothController;
 
 void writeVideoConfigToMemory()
 {
@@ -52,52 +54,54 @@ void initialiseEeprom()
   Serial.println(vid_config.video_date);
 }
 
-void IRAM_ATTR isr()
-{
-  buttonPressed = true;
-  Serial.println("Button pressed - current video will be saved.");
-}
+// void IRAM_ATTR isr()
+// {
+//   buttonPressed = true;
+//   Serial.println("Button pressed - current video will be saved.");
+// }
 
 void setup()
 {
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // Disabling brownout detector
+  // WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // Disabling brownout detector
 
   Serial.begin(115200);
 
   EEPROM.begin(EEPROM_SIZE);
   initialiseEeprom();
 
-#ifdef DEBUG_WAIT
-  delay(5000);
-#endif
+  // #ifdef DEBUG_WAIT
+  //   delay(5000);
+  // #endif
 
-  cameraController.initialize();
+  // cameraController.initialize();
   sdCardController.initialize();
+  bluetoothController.initialize();
 
-#ifdef RTC_CLOCK
-  Wire.begin(I2C_SDA, I2C_SCL);
+  // #ifdef RTC_CLOCK
+  //   Wire.begin(I2C_SDA, I2C_SCL);
 
-  if (!rtc.begin())
-  {
-    Serial.println("Could not find RTC.");
-    fatalError();
-  }
-  else
-  {
-    rtc.adjust(DateTime(__DATE__, __TIME__));
-    Serial.println("RTC clock ready");
-  }
-#endif
+  //   if (!rtc.begin())
+  //   {
+  //     Serial.println("Could not find RTC.");
+  //     fatalError();
+  //   }
+  //   else
+  //   {
+  //     rtc.adjust(DateTime(__DATE__, __TIME__));
+  //     Serial.println("RTC clock ready");
+  //   }
+  // #endif
 
-  cameraController.sdCardController = &sdCardController;
-  sdCardController.rtc = rtc;
+  // cameraController.sdCardController = &sdCardController;
+  // sdCardController.rtc = rtc;
+  bluetoothController.sdCardController = &sdCardController;
 
   delay(10);
 
-#ifdef BUTTON
-  pinMode(BUTTON_GPIO, INPUT_PULLUP);
-  attachInterrupt(BUTTON_GPIO, isr, FALLING);
-#endif
+  // #ifdef BUTTON
+  //   pinMode(BUTTON_GPIO, INPUT_PULLUP);
+  //   attachInterrupt(BUTTON_GPIO, isr, FALLING);
+  // #endif
 
   xTaskCreatePinnedToCore(codeCore0Task, "Core0Task", 8192, NULL, 5, &Core0Task, 0);
   xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 5, &Core1Task, 1);
@@ -110,26 +114,29 @@ void codeCore0Task(void *parameter)
   while (true)
   {
 
-#ifdef DEBUG_WAIT
-    delay(10000);
-#endif
+    delay(30);
+    Serial.println("core0\n");
+    // #ifdef DEBUG_WAIT
+    //     delay(10000);
+    // #endif
 
-    sdCardController.deleteOldFiles();
+    // sdCardController.deleteOldFiles();
 
-    bool fileOpen = sdCardController.startFile();
+    // bool fileOpen = sdCardController.startFile();
 
-    if (fileOpen)
-    {
-      uint32_t fileFramesTotalSize = cameraController.record();
-      sdCardController.closeFile(buttonPressed, fileFramesTotalSize);
-    }
+    // if (fileOpen)
+    // {
+    //   uint32_t fileFramesTotalSize = cameraController.record();
+    //   sdCardController.closeFile(buttonPressed, fileFramesTotalSize);
+    // }
 
-#ifdef DEBUG_WAIT
-    delay(500000);
-#endif
+    // #ifdef DEBUG_WAIT
+    //     delay(500000);
+    // #endif
   }
 }
 
 void codeCore1Task(void *parameter)
 {
+  bluetoothController.run();
 }

@@ -10,8 +10,6 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.view.View
-import android.widget.ProgressBar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -25,7 +23,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.util.UUID
+import java.util.concurrent.BlockingDeque
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.LinkedBlockingQueue
 
 class MainActivity : AppCompatActivity() {
@@ -33,27 +33,42 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun socketReaderWriter(socket: BluetoothSocket) {
         while (true) {
+            var b: Byte = 0;
             if (bufferWriter.isNotEmpty()) {
                 try {
+                    b = bufferWriter.take()
                     if (!socket.isConnected)
                         socket.connect()
 
-                    var c = bufferWriter.take()
-                    socket.outputStream.write(byteArrayOf(c))
+                    socket.outputStream.write(byteArrayOf(b))
 //                    Log.i("BT", "sent: ${c.toInt().toChar()}")
                 }
                 catch (e: IOException) {
                     Log.e("BT", "BT err:", e)
+                    threadInitialized = false
+                    bufferWriter.putFirst(b)
+                    val alert: AlertDialog = AlertDialog.Builder(this).create()
+                    alert.setTitle("BT alert")
+                    alert.setMessage("BT Connection error ;< try again")
+                    alert.show()
+                    break
                 }
             }
             if (socket.isConnected && socket.inputStream.available() != 0) {
-               val b = socket.inputStream.read().toByte()
-               val c = Char(b.toUInt().toInt());
-               if (c.isLetter() || specialChars.contains(c)) {
-                   bufferReader.put(b)
-                   Log.i("BT", "received char: $c")
-               }
-                bufferReader.put(socket.inputStream.read().toByte())
+                try {
+                    val b = socket.inputStream.read().toByte()
+                    val c: Char = b.toUInt().toInt().toChar()
+                    Log.i("BT", "received char: $c (byte: $b)")
+                }
+                catch (e: IOException) {
+                    Log.e("BT", e.stackTraceToString())
+                    threadInitialized = false
+                    val alert: AlertDialog = AlertDialog.Builder(this).create()
+                    alert.setTitle("BT alert")
+                    alert.setMessage("BT Connection error ;< try again")
+                    alert.show()
+                    break
+                }
             }
         }
     }
@@ -165,7 +180,7 @@ class MainActivity : AppCompatActivity() {
             connectThread.start()
             threadInitialized = true
         }
-        Log.i("BT", "sending: $msg")
+        Log.i("BT", "sending: ${String(msg)}")
         for (byte in msg) {
             bufferWriter.put(byte)
         }
@@ -182,8 +197,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var connectThread: ConnectThread
     private var threadInitialized: Boolean = false
-    private var bufferWriter: BlockingQueue<Byte> = LinkedBlockingQueue()
-    private var bufferReader: BlockingQueue<Byte> = LinkedBlockingQueue()
+    private var bufferWriter: BlockingDeque<Byte> = LinkedBlockingDeque()
+    private var bufferReader: BlockingDeque<Byte> = LinkedBlockingDeque()
     private val specialChars: CharArray = charArrayOf(';', ':')
 
     @SuppressLint("MissingPermission")
