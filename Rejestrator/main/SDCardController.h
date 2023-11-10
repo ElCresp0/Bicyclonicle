@@ -22,7 +22,7 @@ public:
     void closeFile(bool buttonPressed, uint32_t fileFramesTotalSize);
     void deleteOldFiles();
     std::string listFiles();
-    FILE *getFileStream(std::string name, std::string mode);
+    File getFileStream(std::string name, const char *mode);
     // RTC_DS3231 rtc;
 
 private:

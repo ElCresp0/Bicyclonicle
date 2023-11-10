@@ -27,20 +27,23 @@ void BluetoothController::sendMessage(std::string msg)
 void BluetoothController::sendVideo(std::string name)
 {
     sendMessage("sending;");
-    FILE *f = sdCardController->getFileStream(name, "r");
-    if (!f)
+    fs::File f = sdCardController->getFileStream(name, "r");
+    if (f == NULL)
     {
         sendMessage("failed;");
         return;
     }
-    byte b = '0';
-    b = fgetc(f);
-    while (b != EOF)
+    char b = '0';
+    f.seek(0);
+    // b = fgetc(f);
+    while (f.available() > 0)
     {
+        f.readBytes(&b, 1);
         SerialBT.write(b);
-        b = fgetc(f);
+        // b = fgetc(f);
     }
-    fclose(f);
+    // fclose(f);
+    f.close();
     sendMessage("executed;");
 }
 
@@ -106,7 +109,7 @@ void BluetoothController::run()
                 }
                 input.clear();
             }
-            else if (in == ':' || isalnum(in))
+            else if (in == ':' || in == '_' || in == '-' || in == '.' || isalnum(in))
                 input.append({in});
             else
             {

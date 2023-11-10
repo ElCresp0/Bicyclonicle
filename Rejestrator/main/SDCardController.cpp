@@ -356,12 +356,17 @@ std::string SDCardController::listFiles()
     }
     file = root.getNextFileName();
   }
+  root.close();
   return (result);
 }
 
-FILE *SDCardController::getFileStream(std::string name, std::string mode)
+File SDCardController::getFileStream(std::string name, const char *mode)
 {
-  return fopen(name.c_str(), mode.c_str());
+  std::string full_path = "/sdcard/";
+  full_path.append(name);
+  Serial.printf("opening file: %s\n", full_path.c_str());
+  // return fopen(full_path.c_str(), mode);
+  return SD_MMC.open(full_path.c_str(), mode);
 }
 
 void SDCardController::findOldestFile(File dir, char *oldestFileName)
