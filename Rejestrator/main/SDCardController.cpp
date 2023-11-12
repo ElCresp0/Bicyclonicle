@@ -340,7 +340,7 @@ void SDCardController::deleteOldFiles()
 std::string SDCardController::listFiles()
 {
   /****
-   * returns semicolon separated list of .avi files
+   * returns comma separated list of .avi files
    */
   std::string result = "";
   File root = SD_MMC.open("/sdcard");
@@ -352,11 +352,12 @@ std::string SDCardController::listFiles()
     {
       Serial.printf("file: %s\n", file.c_str());
       result.append(file.c_str(), file.length());
-      result.append({';'});
+      result.append({','});
     }
     file = root.getNextFileName();
   }
   root.close();
+  result = result.substr(0, result.length() - 1);
   return (result);
 }
 
