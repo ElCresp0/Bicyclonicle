@@ -7,8 +7,10 @@ import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import kotlin.math.min
 
 const val CONN_THREAD_TAG = "CONN_RUNNABLE"
+const val BUFF_SIZE = 1024
 
 class ConnectedThread(
     private val mmSocket: BluetoothSocket,
@@ -37,7 +39,7 @@ class ConnectedThread(
 
     @Synchronized
     override fun run() {
-        val buffer = ByteArray(1024) // buffer store for the stream
+        val buffer = ByteArray(BUFF_SIZE + 1) // buffer store for the stream
         var bytes = 0 // bytes returned from read()
         // Keep listening to the InputStream until an exception occurs
         while (true) {
@@ -46,15 +48,45 @@ class ConnectedThread(
                 Read from the InputStream from Arduino until termination character is reached.
                 Then send the whole String message to GUI Handler.
                  */
+                // read 1 byte, expected messages are:
+                //  > sending;
+                //  > failed;
+                //  > executed;
+                 
                 buffer[bytes] = mmInStream!!.read().toByte()
                 var readMessage: String
-                if (buffer[bytes] == 'q'.code.toByte()) {
+// nie ja tego nie przezyje.......
+                if (buffer[bytes] == ';'.code.toByte()) {
                     readMessage = String(buffer, 0, bytes)
-                    connectionHandler.obtainMessage(
-                        ConnectionStatus.MESSAGE_READ.ordinal,
-                        readMessage
-                    )
-                        .sendToTarget()
+                    if (readMessage == "executed") {
+                        // release semaphor in ConnectionManager
+                        connectionHandler.obtainMessage(
+                            ConnectionStatus.MESSAGE_READ.ordinal,
+                            readMessage
+                        ).sendToTarget()
+                    }
+                    else if ("sending" in readMessage) {
+                        connectionHandler.obtainMessage(
+                            ConnectionStatus.MESSAGE_READ.ordinal,
+                            readMessage
+                        ).sendToTarget()
+                        val params = readMessage.split(":")
+                        receiveBlueToothFile(params[1], params[2].toInt)
+                        
+                    }
+                    else if ("sdcard" in readMessage) {
+                        // means message contains ls result in a form of comma separated list of paths
+                        // send it to the handler
+                        connectionHandler.obtainMessage(
+                            ConnectionStatus.MESSAGE_READ.ordinal,
+                            readMessage
+                        ).sendToTarget()
+                        // change paths to names
+                        
+                        // in handler perform the following to obtain a list of names
+                        // readMessage = readMessage.replace("/[^,]*/".toRegex(), "")
+                        // val files = readMessage.split(",")
+                    }
 
                     bytes = 0
                 } else {
@@ -84,5 +116,58 @@ class ConnectedThread(
         } catch (e: IOException) {
             Log.e(CONN_THREAD_TAG, "Connection haven't been closed.", e)
         }
+    }
+
+    private fun receiveBlueToothFile(name: String, size: Int) {
+        Log.i("BT", "receiving file: $name")
+        var count: Int = 0
+        var waitOnce = false
+        bufferInputStream = mmInStream.buffer(BUFF_SIZE)
+        val fos: FileOutputStream = openFileOutput(name.split("/").last(), Context.MODE_PRIVATE)
+        while (count < size) {
+            if (bufferInputStream.available()) {
+                waitOnce = false
+                // read max size or if there's less than that left in the stream, read the diff
+                val tmpCount = bufferInputStream.read(buffer, 0, min(size - BUFF_SIZE, BUFF_SIZE))
+                fos.write(bufferInputStream, 0, tmpCount)
+                count += tmpCount
+            }
+            else if (waitOnce == false) {
+                sleep(100)
+                waitOnce = true
+            }
+            else {
+                // rollback due to errors
+                Log.e("BT", "Couldn't receive the file, rolling back")
+                // close the file
+                connectionHandler.obtainMessage(
+                            ConnectionStatus.MESSAGE_READ.ordinal,
+                            "failed"
+                        ).sendToTarget()
+                break   
+            }
+        }
+        fos.close()
+        connectionHandler.obtainMessage(
+                            ConnectionStatus.MESSAGE_READ.ordinal,
+                            "executed"
+                        ).sendToTarget()
+
+
+        // BYTEDEQUE IDEA BELOW MIGHT NOT BE THAT STUPID
+        // if (!bufferReader.containsAll("request_ok;".toByteArray().asList())) {
+        //     Log.w("BT - receive file", "no response from ESP")
+        //     return
+        // }
+        // bufferReader.clear()
+        // var byteDeque: ArrayDeque<Byte> = ArrayDeque<Byte>()
+        // val finishedString: ByteArray = "sending_finished".toByteArray()
+        // while (byteDeque.size < finishedString.size || byteDeque.takeLast(finishedString.size).toByteArray() != finishedString) {
+        //     byteDeque.addLast(bufferWriter.take())
+        // }
+        // byteDeque.dropLast(finishedString.size)
+        // fos.write(byteDeque.toByteArray())
+        // fos.close()
+        Log.i("BT alert", "receiv?ed file")
     }
 }
