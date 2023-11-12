@@ -84,20 +84,16 @@ class BluetoothManager private constructor (
             return null
         }
 
-        val pairedDevices: Set<BluetoothDevice> = bluetoothAdapter.bondedDevices
-        var arduinoDevice: BluetoothDevice? = null
-        pairedDevices.forEach {
-            if (it.name == arduinoName) {
-                arduinoDevice = it
-            }
-        }
+        val arduinoDevice = bluetoothAdapter.bondedDevices.stream()
+            .toList()
+            .find { it.name == arduinoName }
 
         if (arduinoDevice == null) {
             Log.e(BT_CONN_TAG, "Can't find Arduino device.")
             return null
         }
 
-        return bluetoothAdapter.getRemoteDevice(arduinoDevice?.address)
+        return bluetoothAdapter.getRemoteDevice(arduinoDevice.address)
     }
 
     companion object {

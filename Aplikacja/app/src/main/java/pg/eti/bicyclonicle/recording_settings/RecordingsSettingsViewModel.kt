@@ -23,7 +23,7 @@ import pg.eti.bicyclonicle.recording_settings.RecordingSingleSetting.Properties 
 const val REC_SETT_TAG = "MANAGE_CONN"
 
 class RecordingsSettingsViewModel(
-    val context: Context,
+    private val context: Context,
     private val preferenceScreen: PreferenceScreen,
     private val loadingScreen: LoadingScreen
 ) : ViewModel() {
@@ -47,10 +47,6 @@ class RecordingsSettingsViewModel(
         setMapForChangedPrefsCounting()
 
         setIsEnableSynchronizeButton(checkArduinoConnection())
-    }
-
-    public fun getSpm(): SharedPreferencesManager {
-        return spm
     }
 
     private fun getPreferencesFromSharedPrefs() {
@@ -86,26 +82,51 @@ class RecordingsSettingsViewModel(
         val commands = StringBuilder()
         currentSettings.forEach { setting -> commands.append(setting.getAsCommand()) }
 
-        val rsvm = this
-
         viewModelScope.launch(Dispatchers.IO) {
             // Non UI, long lasting operations should be made on other thread.
-//            var alertDialog: AlertDialog? = null
-//            viewModelScope.launch(Dispatchers.Main) {
-//                // UI on main.
-//                alertDialog = loadingScreen.getShowedLoadingScreen()
-//            }
+            var alertDialog: AlertDialog? = null
+            viewModelScope.launch(Dispatchers.Main) {
+                // UI on main.
+                alertDialog = loadingScreen.getShowedLoadingScreen()
+            }
 
-            // robie obiekt dziedziczacy po thread z dwoma polami do ustawienia, przekazuje go tam, tam ustawiam i odpalam
+
+            val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
+                Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
+                alertDialog!!.dismiss()
+
+                if (isExecuted) {
+                    Log.e(REC_SETT_TAG, "COMMANDS EXECUTED")
+                    synchronizeWithSharedPreferences(currentSettings)
+                    enableSettings()
+                    setIsEnableSynchronizeButton(false)
+
+                } else {
+                    Log.e(REC_SETT_TAG, "COMMANDS NOT EXECUTED")
+
+                    rollbackPreferences()
+                    disableSettings()
+                    setIsEnableSynchronizeButton(true)
+                }
+
+                viewModelScope.launch(Dispatchers.Main) {
+                    // UI on main.
+                    if (message.isEmpty()) {
+                        Toast.makeText(context, "Synchronization status: $isExecuted",Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, message,Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
 
             connectionManager.sendAndWaitForResponse(
                 commands.toString(),
-                ExecuteAfterWait(rsvm, currentSettings)
+                executeAfterWait
             )
         }
     }
 
-    fun enableSettings() {
+    private fun enableSettings() {
         viewModelScope.launch(Dispatchers.Main) {
             // UI on main.
             for (i in 0 until preferenceScreen.preferenceCount) {
@@ -118,7 +139,7 @@ class RecordingsSettingsViewModel(
         }
     }
 
-    fun disableSettings() {
+    private fun disableSettings() {
         viewModelScope.launch(Dispatchers.Main) {
             // UI on main.
             for (i in 0 until preferenceScreen.preferenceCount) {
@@ -133,7 +154,13 @@ class RecordingsSettingsViewModel(
         }
     }
 
-    fun rollbackPreferences() {
+    private fun synchronizeWithSharedPreferences(settingsToSave: List<RecordingSingleSetting>) {
+        settingsToSave.forEach { setting ->
+            spm.saveSetting(setting.getProperties().key, setting.getValue())
+        }
+    }
+
+    private fun rollbackPreferences() {
         viewModelScope.launch(Dispatchers.Main) {
             previousSettings.forEach { setting ->
                 // Here must be all types of preferences but synchronize.
