@@ -14,7 +14,7 @@ void BluetoothController::listFiles()
 {
     Serial.println("received command to list files");
     std::string out = sdCardController->listFiles();
-    out.append("executed;");
+    out.append(";");
     sendMessage(out);
 }
 
@@ -22,29 +22,34 @@ void BluetoothController::sendMessage(std::string msg)
 {
     Serial.printf("sending message: %s\n", msg.c_str());
     SerialBT.printf(" %s", msg.c_str());
+    // TODO: co ze spacja z przodu?
 }
 
 void BluetoothController::sendVideo(std::string name)
 {
-    sendMessage("sending;");
+    char buff[BUFF_SIZE + 1] = "";
+    int count = 0;
     fs::File f = sdCardController->getFileStream(name, "r");
     if (f == NULL)
     {
         sendMessage("failed;");
         return;
     }
-    char b = '0';
+    sprintf(buff, "sending:%s:%d;", name.c_str(), f.size());
+    sendMessage(std::string(buff));
+    // char b = '0';
     f.seek(0);
     // b = fgetc(f);
     while (f.available() > 0)
     {
-        f.readBytes(&b, 1);
-        SerialBT.write(b);
+        count = f.readBytes(buff, BUFF_SIZE);
+        SerialBT.write((uint8_t *)buff, count);
+        // SerialBT.write(&b, 1);
         // b = fgetc(f);
     }
     // fclose(f);
     f.close();
-    sendMessage("executed;");
+    // sendMessage("executed;");
 }
 
 void BluetoothController::run()

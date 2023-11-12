@@ -5,6 +5,8 @@
 // #include "BicFunctions.h"
 #include <string>
 
+#define BUFF_SIZE 1024
+
 class BluetoothController
 {
 public:
