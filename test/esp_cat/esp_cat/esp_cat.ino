@@ -7,7 +7,7 @@ BluetoothSerial SerialBT;
 
 void setup()
 {
-    SerialBT.begin("ESP32test");
+    SerialBT.begin("Bicyclonicle");
     Serial.begin(115200);
     Serial.println("Starting esp");
 }
@@ -21,7 +21,8 @@ void loop()
     if (Serial.available())
     {
         char c = Serial.read();
-        if (c == 'k') SerialBT.print(" hello;");
+        // if (c == 'k') SerialBT.print(" hello;");
+        SerialBT.write(c);
         // SerialBT.flush();
         // String s = "ab" + String(c) + "defg;";
         // SerialBT.print(s.c_str());
