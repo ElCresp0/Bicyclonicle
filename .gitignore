@@ -56,4 +56,5 @@ captures/
 *.mp4
 
 test/*
-.vscode/*
+*.vscode
+
