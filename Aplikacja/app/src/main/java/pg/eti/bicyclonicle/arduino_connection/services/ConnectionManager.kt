@@ -134,6 +134,10 @@ class ConnectionManager private constructor(
                             Log.e("BT", "received message: \"failed\"")
                         else if ("sending" in receivedMessage)
                             responseSemaphore.release()
+                        else if ("sdcard" in receivedMessage)
+                            responseSemaphore.release()
+
+                        responseSemaphore.release()
                         // wth
                         // when (arduinoMsg.lowercase(Locale.getDefault())) {
                         //     ar.EXECUTED.response -> {
@@ -216,18 +220,22 @@ class ConnectionManager private constructor(
     fun sendAndWaitForResponse(commandsString: String, afterWait: BiConsumer<Boolean, String>) {
         val outputStream = mmSocket!!.outputStream
 
-        var message = ""
+        // var message = ""
+        receivedMessage = ""
         try {
             outputStream.write(commandsString.encodeToByteArray())
         } catch (e: IOException) {
-            message = "Arduino is NOT connected."
+            // message = "Arduino is NOT connected."
+            receivedMessage = "Arduino is NOT connected."
         }
 
         Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
         // Now, wait for a response or timeout
+        // 100$ question: is the received message up to date?
         afterWait.accept(
             responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS),
-            message
+            // message
+            receivedMessage
         )
     }
 
