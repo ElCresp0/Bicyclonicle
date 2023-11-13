@@ -156,17 +156,18 @@ class ConnectedThread(
 //            available = bufferInputStream!!.available()
             available = mmInStream!!.available()
             if (available > 0) {
-                Log.i(CONN_THREAD_TAG, "reading $available")
+                Log.i(CONN_THREAD_TAG, "available: $available")
                 waitOnce = false
                 // read max size or if there's less than that left in the stream, read the diff
 //                val tmpCount = bufferInputStream.read(buffer, 0, min(BUFF_SIZE, min(size - count, available)))
                 val tmpCount = mmInStream.read(buffer, 0, min(BUFF_SIZE, min(size - count, available)))
+                Log.i("BT", "read: $tmpCount")
                 fos.write(buffer, 0, tmpCount)
                 count += tmpCount
             }
             else if (!waitOnce) {
                 sleep(100)
-                waitOnce = true
+//                waitOnce = true
             }
             else {
                 // rollback due to errors

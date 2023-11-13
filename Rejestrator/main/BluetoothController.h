@@ -2,7 +2,7 @@
 
 #include "BluetoothSerial.h"
 #include "SDCardController.h"
-// #include "BicFunctions.h"
+#include "BicFunctions.h"
 #include <string>
 
 #define BUFF_SIZE 1024

@@ -16,7 +16,11 @@ void loop()
 {
     if (SerialBT.available())
     {
-        Serial.print((char)SerialBT.read());
+        char c = SerialBT.read();
+        Serial.print(c);
+        if (c == ';') {
+          Serial.print("\n");
+        }
     }
     if (Serial.available())
     {
