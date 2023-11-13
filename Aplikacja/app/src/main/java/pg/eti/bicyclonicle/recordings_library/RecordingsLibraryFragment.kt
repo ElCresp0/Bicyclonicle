@@ -36,6 +36,8 @@ import java.io.PrintWriter
 import java.nio.file.Files
 import java.nio.file.OpenOption
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.fileSize
 
 
 class RecordingsLibraryFragment() : Fragment() {
@@ -80,6 +82,7 @@ class RecordingsLibraryFragment() : Fragment() {
         gridView = binding.recordGrid
 
         arrayList = ArrayList()
+        fetchNewFileNames()
         arrayList = setDataList()
 
         recordFileAdapter = RecordFileAdapter(requireContext(), arrayList)
@@ -91,12 +94,17 @@ class RecordingsLibraryFragment() : Fragment() {
             // play video if it's downloaded or download it from esp
             val videoPath = arrayList[position].retVideoPath()
             val f = File(videoPath)
-            if (f.length().toInt() == 0) {
+            val size = f.toPath().fileSize()
+//            Files.size(f.toPath())
+//            val size: BasicFileAttributes = Files.readAttributes(f.toPath(), BasicFileAttributes)
+            Log.i(REC_LIB_TAG, "file size: $size")
+            if (size == 0.toLong()) {
+                Log.i(REC_LIB_TAG, "downloading file")
                 // video not downloaded
-                Log.i("RecLib", "Downloading file")
                 downloadFile(f.name)
             }
             else {
+                Log.i(REC_LIB_TAG, "displaying the file")
                 val intent = Intent(requireContext(), VideoViewActivity::class.java)
                 intent.putExtra("videoViewUri", arrayList[position].retVideoPath())
                 startActivity(intent)
