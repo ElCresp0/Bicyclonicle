@@ -146,10 +146,10 @@ class ConnectedThread(
         var buffer = ByteArray(BUFF_SIZE + 1)
 //        val bufferInputStream = mmInStream?.buffered(BUFF_SIZE)
 //        val fos: FileOutputStream = FileOutputStream(name.split("/").last())
-        val f = File(context.filesDir.absolutePath + "/" + name.split("/").last())
+        val f = File(context.filesDir.absolutePath + "/new_" + name.split("/").last())
         Log.i(CONN_THREAD_TAG, "File: ${f.name}, exists: ${f.exists()}, expectedSize: $size, absPath: ${f.absolutePath}")
 //        val fos = f.outputStream()
-        val fos = context.openFileOutput(f.absolutePath, Context.MODE_APPEND)
+        val fos = context.openFileOutput(f.name, Context.MODE_APPEND)
         Log.i(CONN_THREAD_TAG, "opened FileOutputStream")
         while (count < size) {
 //            available = bufferInputStream!!.available()
