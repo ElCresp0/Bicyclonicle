@@ -31,7 +31,7 @@ const val MANAGE_CONN_TAG = "MANAGE_CONN"
 //  then all modules want to connect
 @SuppressLint("MissingPermission")
 class ConnectionManager private constructor(
-    context: Context,
+    private val context: Context,
     private val enableBluetoothByIntent: Consumer<Intent>,
 ) {
     // Members for connection to Arduino.
@@ -137,7 +137,7 @@ class ConnectionManager private constructor(
                         else if ("sdcard" in receivedMessage)
                             responseSemaphore.release()
 
-                        responseSemaphore.release()
+//                        responseSemaphore.release()
                         // wth
                         // when (arduinoMsg.lowercase(Locale.getDefault())) {
                         //     ar.EXECUTED.response -> {
@@ -237,6 +237,10 @@ class ConnectionManager private constructor(
             // message
             receivedMessage
         )
+    }
+
+    public fun receiveFileInConnectedThread(name: String, size: Int, context: Context) {
+        connectedThread?.receiveBlueToothFile(name, size, context)
     }
 
     private fun askToEnableBluetooth() {

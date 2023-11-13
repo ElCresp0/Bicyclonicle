@@ -196,8 +196,9 @@ class RecordingsLibraryFragment() : Fragment() {
                         if (! f.exists()) {
                             Log.i("RecLib", "fetched new file name: ${f.name}")
 //                            val writer = PrintWriter(f.name)
-                            val fos =
-                                requireContext().openFileOutput(f.name, Context.MODE_PRIVATE) // Files.newOutputStream(f.toPath(), StandardOpenOption.WRITE)
+//                            val tmpContext = requireContext()
+//                            val fos = f.outputStream()
+                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE) // Files.newOutputStream(f.toPath(), StandardOpenOption.WRITE)
 //                        val fos = openFileOutput // FileOutputStream(file, )
                             fos.close()
                             // writing to file:
@@ -239,23 +240,34 @@ class RecordingsLibraryFragment() : Fragment() {
 
             val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
                 Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
-                alertDialog!!.dismiss()
+                // alertDialog!!.dismiss()
 
-                if (isExecuted) {
+                if (isExecuted && "sending" in message) {
                     Log.e(REC_LIB_TAG, "COMMANDS EXECUTED")
-                    // read the list of files from the message
-                    val alert: AlertDialog = AlertDialog.Builder(requireContext()).create()
-                    alert.setTitle("BT alert")
-                    alert.setMessage("BT - file transfer started")
-                    alert.show()
                     // file transfer is handled in the ConnectedRunnable class, after which it will be present in the library
-
+                    // ^ the above is no longer true, the caller is now responisble for calling receiveBlueToothFile with it's own context
+                    
+                    val params = message.split(":")
+                    // receiveBlueToothFile(params[1], params[2].toInt())
+                    connectionManager.receiveFileInConnectedThread(params[1], params[2].toInt(), requireContext())
+                    alertDialog!!.dismiss()
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - file transfer started",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 } else {
                     Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
-                    val alert: AlertDialog = AlertDialog.Builder(requireContext()).create()
-                    alert.setTitle("BT alert")
-                    alert.setMessage("BT - failed to transfer file from device")
-                    alert.show()
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - failed to transfer file from device",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
+                    }
                 }
             }
 
