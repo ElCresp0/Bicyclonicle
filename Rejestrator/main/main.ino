@@ -114,7 +114,7 @@ void codeCore0Task(void *parameter)
   while (true)
   {
 
-    delay(10000);
+    delay(60000);
     Serial.println("core0\n");
     // #ifdef DEBUG_WAIT
     //     delay(10000);
