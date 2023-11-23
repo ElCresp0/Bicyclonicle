@@ -40,25 +40,4 @@
             android:screenOrientation="landscape">
         </activity>
     </application>
-<!--    &lt;!&ndash; Request legacy Bluetooth permissions on older devices. &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH"-->
-<!--        android:maxSdkVersion="30" />-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"-->
-<!--        android:maxSdkVersion="30" />-->
-
-<!--    &lt;!&ndash; Needed only if your app looks for Bluetooth devices.-->
-<!--         If your app doesn't use Bluetooth scan results to derive physical-->
-<!--         location information, you can strongly assert that your app-->
-<!--         doesn't derive physical location. &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />-->
-
-<!--    &lt;!&ndash; Needed only if your app makes the device discoverable to Bluetooth-->
-<!--         devices. &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />-->
-
-<!--    &lt;!&ndash; Needed only if your app communicates with already-paired Bluetooth-->
-<!--         devices. &ndash;&gt;-->
-<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />-->
-<!--    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
-<!--    <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>-->
 </manifest>
