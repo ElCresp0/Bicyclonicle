@@ -5,7 +5,7 @@ void BluetoothController::initialize()
     /****
      * initialize serial bluetooth stream
      * */
-    Serial.println("Initializing blueatooth controller");
+    Serial.println("Initializing bluetooth controller");
     SerialBT.begin("Bicyclonicle");
     input = "";
 }
