@@ -1,12 +1,10 @@
 package pg.eti.bicyclonicle.recordings_library
 
-//import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -16,7 +14,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -31,12 +28,6 @@ import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
 import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import java.io.File
-import java.io.FileOutputStream
-import java.io.PrintWriter
-import java.nio.file.Files
-import java.nio.file.OpenOption
-import java.nio.file.StandardOpenOption
-import java.nio.file.attribute.BasicFileAttributes
 import kotlin.io.path.fileSize
 
 
@@ -50,8 +41,6 @@ class RecordingsLibraryFragment() : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-//    private val loadingScreen: LoadingScreen
-//    private val viewModelScope = this.view.
     private lateinit var gridView: GridView
     private lateinit var arrayList: ArrayList<RecordFile>
     private lateinit var recordFileAdapter: RecordFileAdapter
@@ -63,11 +52,8 @@ class RecordingsLibraryFragment() : Fragment() {
         if (!::connectionManager.isInitialized) {
             connectionManager = ConnectionManager.getExistInstance()
         }
-//        context = activity?.applicationContext!!
-//        loadingScreen = LoadingScreen(getContext()!!, resources)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -155,25 +141,14 @@ class RecordingsLibraryFragment() : Fragment() {
                     thumb = null
                     out = null
                 }
-
                 arrayList.add(RecordFile(thumb, it.name, out, null, null, it.absolutePath))
             }
-            // else if (it.extension == "???") {
-            //     Log.i("RecLib", "file to download: $it.name")
-            //     arrayList.add(RecordFile(null, it.name, "not downloaded", null, null, it.absolutePath))
-            //     // probably won't work
-            // }
-
-
         }
         return arrayList
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun fetchNewFileNames() {
         val command = "ls;"
-
-
         recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.IO) {
             // Non UI, long lasting operations should be made on other thread.
             var alertDialog: AlertDialog? = null
@@ -181,7 +156,6 @@ class RecordingsLibraryFragment() : Fragment() {
                 // UI on main.
                 alertDialog = getLoadingScreen().getShowedLoadingScreen()
             }
-
 
             val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
                 Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
@@ -203,15 +177,8 @@ class RecordingsLibraryFragment() : Fragment() {
                         Log.i("RecLib", "checking file name: ${f.name}")
                         if (! f.exists()) {
                             Log.i("RecLib", "fetched new file name: ${f.name}")
-//                            val writer = PrintWriter(f.name)
-//                            val tmpContext = requireContext()
-//                            val fos = f.outputStream()
-                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE) // Files.newOutputStream(f.toPath(), StandardOpenOption.WRITE)
-//                        val fos = openFileOutput // FileOutputStream(file, )
+                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE)
                             fos.close()
-                            // writing to file:
-                            // write a single frame for the thumbnail?
-//                            writer.close()
                         }
                     }
                 } else {
@@ -245,18 +212,14 @@ class RecordingsLibraryFragment() : Fragment() {
                 alertDialog = getLoadingScreen().getShowedLoadingScreen()
             }
 
-
             val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
                 Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
                 // alertDialog!!.dismiss()
 
                 if (isExecuted && "sending" in message) {
                     Log.e(REC_LIB_TAG, "COMMANDS EXECUTED")
-                    // file transfer is handled in the ConnectedRunnable class, after which it will be present in the library
-                    // ^ the above is no longer true, the caller is now responisble for calling receiveBlueToothFile with it's own context
                     
                     val params = message.split(":")
-                    // receiveBlueToothFile(params[1], params[2].toInt())
                     connectionManager.receiveFileInConnectedThread(params[1], params[2].toInt(), requireContext())
                     alertDialog!!.dismiss()
                     recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
@@ -285,10 +248,6 @@ class RecordingsLibraryFragment() : Fragment() {
             )
         }
     }
-
-    private fun saveRecordToSD() {}
-
-    private fun saveRecordToTele() {}
 
     override fun onDestroyView() {
         super.onDestroyView()

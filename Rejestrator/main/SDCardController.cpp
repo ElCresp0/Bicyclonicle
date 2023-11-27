@@ -347,7 +347,7 @@ std::string SDCardController::listFiles()
   String file = root.getNextFileName();
   while (!file.isEmpty())
   {
-    if (file.endsWith(".avi") || file.endsWith(".mp4") || file.endsWith(".png"))
+    if (file.endsWith(".avi") || file.endsWith(".mp4"))
     // TODO: leave only .avi, other formats are for tests
     {
       Serial.printf("file: %s\n", file.c_str());

@@ -33,7 +33,9 @@ void BluetoothController::sendVideo(std::string name)
     // which gives speed of 40MB/(23:29:43.931 - 23:23:16.335) = 103200 B/s = 103 kB/s
     char buff[BUFF_SIZE + 1] = "";
     int count = 0;
+    bool breakFlag = false;
     fs::File f = sdCardController->getFileStream(name, "r");
+    input.clear();
     if (f == NULL)
     {
         sendMessage("failed;");
@@ -46,14 +48,32 @@ void BluetoothController::sendVideo(std::string name)
     // b = fgetc(f);
     while (f.available() > 0)
     {
+        while (SerialBT.available()) {
+            char in = SerialBT.read();
+            if (in == ':' || in == '_' || in == '-' || in == '.' || isalnum(in))
+                input.append({in});
+            else if (in == ';')
+            {
+                if (input.find("error") != std::string::npos)
+                {
+                    // rollback
+                    Serial.println("android error: rolling back");
+                    input.clear();
+                    breakFlag = true;
+                    break;
+                }
+                else {
+                    Serial.printf("unexpected input: %s\n", input.c_str());
+                }
+                input.clear();
+            }
+        }
+        if (breakFlag) break;
         count = f.readBytes(buff, BUFF_SIZE);
         SerialBT.write((uint8_t *)buff, count);
-        // SerialBT.write(&b, 1);
-        // b = fgetc(f);
     }
-    // fclose(f);
     f.close();
-    // sendMessage("executed;");
+    sendMessage("executed;");
 }
 
 void BluetoothController::run()
@@ -68,7 +88,7 @@ void BluetoothController::run()
         if (SerialBT.available())
         {
             char in = SerialBT.read();
-            Serial.printf("received: %1c\n", in);
+            // Serial.printf("received: %1c\n", in);
             if (in == ';')
             {
                 if (input.find("error") != std::string::npos)

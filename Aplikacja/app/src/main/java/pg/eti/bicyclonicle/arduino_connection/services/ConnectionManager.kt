@@ -136,14 +136,6 @@ class ConnectionManager private constructor(
                             responseSemaphore.release()
                         else if ("sdcard" in receivedMessage)
                             responseSemaphore.release()
-
-//                        responseSemaphore.release()
-                        // wth
-                        // when (arduinoMsg.lowercase(Locale.getDefault())) {
-                        //     ar.EXECUTED.response -> {
-                        //         responseSemaphore.release()
-                        //     }
-                        // }
                     }
                 }
             }
@@ -239,8 +231,8 @@ class ConnectionManager private constructor(
         )
     }
 
-    public fun receiveFileInConnectedThread(name: String, size: Int, context: Context) {
-        connectedThread?.receiveBlueToothFile(name, size, context)
+    public fun receiveFileInConnectedThread(name: String, size: Int, context: Context): String? {
+        return connectedThread?.receiveBlueToothFile(name, size, context)
     }
 
     private fun askToEnableBluetooth() {
