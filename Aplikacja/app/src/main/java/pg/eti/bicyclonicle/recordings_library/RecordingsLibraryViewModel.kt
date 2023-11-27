@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 const val REC_LIB_VM_TAG = "REC_LIB_VM_TAG"
 
 class RecordingsLibraryViewModel : ViewModel() {
-
     // LiveData
     private val _isArduinoConnectedText = MutableLiveData<String>()
     val isArduinoConnectedText: LiveData<String> = _isArduinoConnectedText
