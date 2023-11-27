@@ -27,7 +27,7 @@ class RecordFileAdapter(var context: Context, var arrayList: ArrayList<RecordFil
         var name:TextView  = view.findViewById(R.id.recordNameFile);
         var time:TextView  = view.findViewById(R.id.recordTimeFile);
         var recordFile: RecordFile = arrayList.get(p0)
-        icons.setImageBitmap(recordFile.icons !!)
+        if (recordFile.icons != null) icons.setImageBitmap(recordFile.icons)
         name.text = recordFile.name
         time.text = recordFile.time
 

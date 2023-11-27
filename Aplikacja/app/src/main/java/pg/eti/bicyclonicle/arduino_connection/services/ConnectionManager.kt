@@ -17,7 +17,7 @@ import pg.eti.bicyclonicle.arduino_connection.enums.BluetoothStatus
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 
 import java.io.IOException
-import java.util.Locale
+// import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
@@ -31,7 +31,7 @@ const val MANAGE_CONN_TAG = "MANAGE_CONN"
 //  then all modules want to connect
 @SuppressLint("MissingPermission")
 class ConnectionManager private constructor(
-    context: Context,
+    private val context: Context,
     private val enableBluetoothByIntent: Consumer<Intent>,
 ) {
     // Members for connection to Arduino.
@@ -46,11 +46,12 @@ class ConnectionManager private constructor(
     private val bluetoothAdapter: BluetoothAdapter? = androidBluetoothManager.adapter
     private var bluetoothManager: BluetoothManager = BluetoothManager.getInstance(
         bluetoothAdapter,
-        "JANEK-LAPTOP"
+        "Bicyclonicle"
     )
     private var wasAskedToEnableBt = false
 
     private val responseSemaphore = Semaphore(0)
+    private var receivedMessage: String = ""
 
     // todo: permissions
     @SuppressLint("MissingPermission")
@@ -125,13 +126,16 @@ class ConnectionManager private constructor(
                     }
 
                     ConnectionStatus.MESSAGE_READ.ordinal -> {
-                        val arduinoMsg: String = msg.obj.toString() // Read message from Arduino
-                        Log.i(MANAGE_CONN_TAG, "ARDUINO_MESSAGE: $arduinoMsg")
-                        when (arduinoMsg.lowercase(Locale.getDefault())) {
-                            ar.EXECUTED.response -> {
-                                responseSemaphore.release()
-                            }
-                        }
+                        receivedMessage = msg.obj.toString()
+                        Log.i(MANAGE_CONN_TAG, "ARDUINO_MESSAGE: $receivedMessage")
+                        if (receivedMessage == "executed")
+                            responseSemaphore.release()
+                        else if (receivedMessage == "failed")
+                            Log.e("BT", "received message: \"failed\"")
+                        else if ("sending" in receivedMessage)
+                            responseSemaphore.release()
+                        else if ("sdcard" in receivedMessage)
+                            responseSemaphore.release()
                     }
                 }
             }
@@ -208,19 +212,27 @@ class ConnectionManager private constructor(
     fun sendAndWaitForResponse(commandsString: String, afterWait: BiConsumer<Boolean, String>) {
         val outputStream = mmSocket!!.outputStream
 
-        var message = ""
+        // var message = ""
+        receivedMessage = ""
         try {
             outputStream.write(commandsString.encodeToByteArray())
         } catch (e: IOException) {
-            message = "Arduino is NOT connected."
+            // message = "Arduino is NOT connected."
+            receivedMessage = "Arduino is NOT connected."
         }
 
         Log.i(MANAGE_CONN_TAG, "WAITING FOR RESPONSE")
         // Now, wait for a response or timeout
+        // 100$ question: is the received message up to date?
         afterWait.accept(
             responseSemaphore.tryAcquire(1, 10, TimeUnit.SECONDS),
-            message
+            // message
+            receivedMessage
         )
+    }
+
+    public fun receiveFileInConnectedThread(name: String, size: Int, context: Context): String? {
+        return connectedThread?.receiveBlueToothFile(name, size, context)
     }
 
     private fun askToEnableBluetooth() {

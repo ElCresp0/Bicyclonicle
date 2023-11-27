@@ -27,7 +27,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-class LoadingScreen private constructor(
+class LoadingScreen(
     context: Context,
     private val resources: Resources
 ) {
