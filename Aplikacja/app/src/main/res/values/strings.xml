@@ -10,60 +10,60 @@
 
     <!-- APP SETTINGS (app_settings_preferences.xml) -->
     <!-- font size preference -->
-    <string name="title_font_size" translatable="false">Font Size</string>
-    <string name="summary_font_size" translatable="false">Select your preferred font size</string>
-    <string name="dialog_title_font_size" translatable="false">Choose Font Size</string>
-    <string name="default_value_font_size" translatable="false">medium</string>
+    <string name="title_font_size" translatable="true">Font Size</string>
+    <string name="summary_font_size" translatable="true">Select your preferred font size</string>
+    <string name="dialog_title_font_size" translatable="true">Choose Font Size</string>
+    <string name="default_value_font_size" translatable="true">medium</string>
 
     <!-- app information preference -->
-    <string name="title_general_info" translatable="false">General Information</string>
+    <string name="title_general_info" translatable="true">General Information</string>
 
-    <string name="title_authors" translatable="false">Authors</string>
-    <string name="summary_authors" translatable="false">
+    <string name="title_authors" translatable="true">Authors</string>
+    <string name="summary_authors" translatable="true">
         Julia Klingenberg, Jakub Kiliańczyk, Ignacy Wasilewski, Jan Kornacki
     </string>
 
-    <string name="title_app_version" translatable="false">App Version</string>
-    <string name="summary_app_version" translatable="false">Latest</string>
+    <string name="title_app_version" translatable="true">App Version</string>
+    <string name="summary_app_version" translatable="true">Latest</string>
 
     <!-- RECORDING SETTINGS (recording_settings_preference.xml) -->
     <!-- synchronize button -->
-    <string name="title_synchronize" translatable="false">Synchronize</string>
-    <string name="summary_synchronize" translatable="false">Synchronize settings with Arduino</string>
+    <string name="title_synchronize" translatable="true">Synchronize</string>
+    <string name="summary_synchronize" translatable="true">Synchronize settings with Arduino</string>
 
     <!-- resolution preference -->
-    <string name="title_resolution" translatable="false">Resolution</string>
-    <string name="summary_resolution" translatable="false">Select the recording resolution</string>
+    <string name="title_resolution" translatable="true">Resolution</string>
+    <string name="summary_resolution" translatable="true">Select the recording resolution</string>
 
     <!-- frame rate preference -->
-    <string name="title_frame_rate" translatable="false">Frame Rate</string>
-    <string name="summary_frame_rate" translatable="false">Select the frame rate</string>
+    <string name="title_frame_rate" translatable="true">Frame Rate</string>
+    <string name="summary_frame_rate" translatable="true">Select the frame rate</string>
 
     <!-- duration preference -->
-    <string name="title_duration" translatable="false">Clip Duration</string>
-    <string name="summary_duration" translatable="false">Select the duration of the clip</string>
+    <string name="title_duration" translatable="true">Clip Duration</string>
+    <string name="summary_duration" translatable="true">Select the duration of the clip</string>
 
     <!-- mute sound preference -->
-    <string name="title_mute_sound" translatable="false">Mute Sound</string>
-    <string name="summary_mute_sound" translatable="false">Mute the sound during recording</string>
+    <string name="title_mute_sound" translatable="true">Mute Sound</string>
+    <string name="summary_mute_sound" translatable="true">Mute the sound during recording</string>
 
     <!-- show date preference -->
-    <string name="title_show_date" translatable="false">Show Date on Clip</string>
-    <string name="summary_show_date" translatable="false">
+    <string name="title_show_date" translatable="true">Show Date on Clip</string>
+    <string name="summary_show_date" translatable="true">
         Display the recording date on the footage
     </string>
 
     <!-- Codec preference -->
-    <string name="title_codec" translatable="false">Codec</string>
-    <string name="summary_codec" translatable="false">Select the video codec</string>
+    <string name="title_codec" translatable="true">Codec</string>
+    <string name="summary_codec" translatable="true">Select the video codec</string>
 
     <!-- CONNECTION STATUS MESSAGES -->
-    <string name="connection_status" translatable="false">Connection status</string>
-    <string name="connected" translatable="false">Arduino connected</string>
-    <string name="not_connected" translatable="false">Arduino NOT connected</string>
-    <string name="message_read" translatable="false">Message read</string>
+    <string name="connection_status" translatable="true">Connection status</string>
+    <string name="connected" translatable="true">Arduino connected</string>
+    <string name="not_connected" translatable="true">Arduino NOT connected</string>
+    <string name="message_read" translatable="true">Message read</string>
 
     <!-- HOME FRAGMENT -->
-    <string name="connect_to_arduino" translatable="false">Connect</string>
+    <string name="connect_to_arduino" translatable="true">Connect</string>
 
 </resources>
