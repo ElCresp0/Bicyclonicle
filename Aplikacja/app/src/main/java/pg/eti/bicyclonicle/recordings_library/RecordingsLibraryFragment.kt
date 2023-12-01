@@ -121,7 +121,9 @@ class RecordingsLibraryFragment() : Fragment() {
             if (it.extension == "mp4" || it.extension == "avi") {
                 // to do
                 val out: String?
-                if (File(it.name).length() > 0) {
+                val sdSaved: Boolean?
+                val telSaved: Boolean?
+                if (File(it.name).length() > 0) { //todo
                     thumb = ThumbnailUtils.createVideoThumbnail(
                         it.absolutePath,
                         MediaStore.Images.Thumbnails.MINI_KIND
@@ -135,13 +137,17 @@ class RecordingsLibraryFragment() : Fragment() {
                     val seconds = java.lang.String.valueOf(dur % 60000 / 1000)
                     val minutes = java.lang.String.valueOf(dur / 60000)
                     out = "$minutes:$seconds"
+                    sdSaved = false;
+                    telSaved = true;
                 }
                 else {
                     // file is not downloaded
                     thumb = null
                     out = null
+                    sdSaved = true;
+                    telSaved = false;
                 }
-                arrayList.add(RecordFile(thumb, it.name, out, null, null, it.absolutePath))
+                arrayList.add(RecordFile(thumb, it.name, out, sdSaved, telSaved, it.absolutePath))
             }
         }
         return arrayList

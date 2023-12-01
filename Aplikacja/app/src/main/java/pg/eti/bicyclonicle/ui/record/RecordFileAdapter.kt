@@ -24,10 +24,14 @@ class RecordFileAdapter(var context: Context, var arrayList: ArrayList<RecordFil
     override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
         var view:View = View.inflate(context, R.layout.record_file , null)
         var icons:ImageView  = view.findViewById(R.id.imageViewFile);
+        var sdIcon:ImageView = view.findViewById(R.id.imageSD);
+        var telIcon:ImageView = view.findViewById(R.id.imagePhone);
         var name:TextView  = view.findViewById(R.id.recordNameFile);
         var time:TextView  = view.findViewById(R.id.recordTimeFile);
         var recordFile: RecordFile = arrayList.get(p0)
         if (recordFile.icons != null) icons.setImageBitmap(recordFile.icons)
+        if (recordFile.sdSaved == false) sdIcon.visibility = View.GONE
+        if (recordFile.telSaved == false) telIcon.visibility = View.GONE
         name.text = recordFile.name
         time.text = recordFile.time
 
