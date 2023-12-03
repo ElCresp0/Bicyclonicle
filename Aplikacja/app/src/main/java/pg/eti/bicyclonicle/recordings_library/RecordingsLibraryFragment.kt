@@ -1,56 +1,63 @@
 package pg.eti.bicyclonicle.recordings_library
 
-import android.content.pm.ActivityInfo
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.GridView
-import android.widget.MediaController
 import android.widget.Toast
-import android.widget.VideoView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import pg.eti.bicyclonicle.R
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlin.String
+import pg.eti.bicyclonicle.LoadingScreen
+import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
+import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import java.io.File
-import java.lang.String
+import kotlin.io.path.fileSize
 
 
-class RecordingsLibraryFragment : Fragment() {
+class RecordingsLibraryFragment() : Fragment() {
 
+    private var context: Context? = null
+    private var loadingScreen: LoadingScreen? = null
+    private val REC_LIB_TAG = "RecLib"
     private var _binding: FragmentRecordingsBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
-    var gridView: GridView ? = null
-    var arrayList: ArrayList<RecordFile> ? = null
-    var recordFileAdapter: RecordFileAdapter ? = null
-    var simpleVideoView: VideoView? = null
-    var mediaControls: MediaController? = null
+    private lateinit var gridView: GridView
+    private lateinit var arrayList: ArrayList<RecordFile>
+    private lateinit var recordFileAdapter: RecordFileAdapter
 
     private lateinit var recordingsLibraryViewModel: RecordingsLibraryViewModel
+    private lateinit var connectionManager: ConnectionManager
 
-    override fun onResume() {
-        super.onResume()
-
-        recordingsLibraryViewModel.checkArduinoConnection()
+    init {
+        if (!::connectionManager.isInitialized) {
+            connectionManager = ConnectionManager.getExistInstance()
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         recordingsLibraryViewModel =
             ViewModelProvider(this).get(RecordingsLibraryViewModel::class.java)
@@ -58,96 +65,193 @@ class RecordingsLibraryFragment : Fragment() {
         _binding = FragmentRecordingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val activity = requireActivity()
-
-        simpleVideoView =  binding.videoView
         gridView = binding.recordGrid
+
         arrayList = ArrayList()
+        fetchNewFileNames()
         arrayList = setDataList()
 
-        recordFileAdapter = RecordFileAdapter(requireContext(),arrayList!!)
-        gridView?.adapter = recordFileAdapter
+        recordFileAdapter = RecordFileAdapter(requireContext(), arrayList)
 
-        if (mediaControls == null) {
-            // creating an object of media controller class
-            mediaControls = MediaController(requireContext())
+        fetchNewFileNames()
 
-            // set the anchor view for the video view
-            mediaControls!!.setAnchorView(this.simpleVideoView)
+        gridView.adapter = recordFileAdapter
+        gridView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
+            // play video if it's downloaded or download it from esp
+            val videoPath = arrayList[position].retVideoPath()
+            val f = File(videoPath)
+            val size = f.toPath().fileSize()
+//            Files.size(f.toPath())
+//            val size: BasicFileAttributes = Files.readAttributes(f.toPath(), BasicFileAttributes)
+            Log.i(REC_LIB_TAG, "file size: $size")
+            if (size == 0.toLong()) {
+                Log.i(REC_LIB_TAG, "downloading file")
+                // video not downloaded
+                downloadFile(f.name)
+            }
+            else {
+                Log.i(REC_LIB_TAG, "displaying the file")
+                val intent = Intent(requireContext(), VideoViewActivity::class.java)
+                intent.putExtra("videoViewUri", arrayList[position].retVideoPath())
+                startActivity(intent)
+            }
         }
 
-        simpleVideoView!!.setMediaController(mediaControls)
-        simpleVideoView!!.visibility = View.INVISIBLE;
-        gridView!!.onItemClickListener = OnItemClickListener { parent, v, position, id ->
-            //val clickedItem = arrayList!![position]
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-            simpleVideoView!!.visibility = View.VISIBLE
-            gridView!!.visibility = View.INVISIBLE
-
-            simpleVideoView!!.setVideoURI(Uri.parse(arrayList!![position].retVideoPath()))
-
-            simpleVideoView!!.requestFocus()
-
-            simpleVideoView!!.start()
-
-        }
-        simpleVideoView!!.setOnCompletionListener {
-            simpleVideoView!!.visibility = View.INVISIBLE
-            gridView!!.visibility = View.VISIBLE
-            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            //Toast.makeText(applicationContext, "Video completed", Toast.LENGTH_LONG).show()
-            true
-        }
-
-        setupViewModelLiveData()
-        recordingsLibraryViewModel.initViewModel()
-        recordingsLibraryViewModel.checkArduinoConnection()
-
+        // context = root.context
+        // loadingScreen = LoadingScreen(root.context, resources)
         return root
     }
 
+    // private fun getContext
+    private fun getLoadingScreen(): LoadingScreen {
+        if (loadingScreen == null) {
+            loadingScreen = LoadingScreen(requireContext(), resources)
+        }
+        return loadingScreen!!
+    }
 
-    private fun setDataList() :ArrayList<RecordFile>{
+    private fun setDataList(): ArrayList<RecordFile> {
 
-        var arrayList: ArrayList<RecordFile> = ArrayList()
+        val arrayList: ArrayList<RecordFile> = ArrayList()
         val metaRetriever = MediaMetadataRetriever()
-        var thumb: Bitmap? = null
+        var thumb: Bitmap?
         //"/data/data/pg.eti.bicyclonicle/files"
         File(this.activity?.filesDir?.absolutePath).walk().forEach {
             println(it)
-            if(it.extension == "mp4"){
-                thumb = ThumbnailUtils.createVideoThumbnail(it.absolutePath, MediaStore.Images.Thumbnails.MINI_KIND)
-                metaRetriever.setDataSource(it.absolutePath)
+            if (it.extension == "mp4" || it.extension == "avi") {
+                // to do
+                val out: String?
+                val sdSaved: Boolean?
+                val telSaved: Boolean?
+                if (File(it.name).length() > 0) { //todo
+                    thumb = ThumbnailUtils.createVideoThumbnail(
+                        it.absolutePath,
+                        MediaStore.Images.Thumbnails.MINI_KIND
+                    )
+                    metaRetriever.setDataSource(it.absolutePath)
 
-                val duration =
-                    metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                val dur = duration!!.toLong()
+                    val duration =
+                        metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                    val dur = duration!!.toLong()
 
-                val seconds = String.valueOf(dur % 60000 / 1000)
-                val minutes = String.valueOf(dur / 60000)
-                val out = "$minutes:$seconds"
-
-                arrayList.add(RecordFile(thumb, it.name, out, null, null, it.absolutePath))
+                    val seconds = java.lang.String.valueOf(dur % 60000 / 1000)
+                    val minutes = java.lang.String.valueOf(dur / 60000)
+                    out = "$minutes:$seconds"
+                    sdSaved = false;
+                    telSaved = true;
+                }
+                else {
+                    // file is not downloaded
+                    thumb = null
+                    out = null
+                    sdSaved = true;
+                    telSaved = false;
+                }
+                arrayList.add(RecordFile(thumb, it.name, out, sdSaved, telSaved, it.absolutePath))
             }
-
-
-
         }
         return arrayList
     }
 
-    private fun saveRecordToSD(){}
+    private fun fetchNewFileNames() {
+        val command = "ls;"
+        recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.IO) {
+            // Non UI, long lasting operations should be made on other thread.
+            var alertDialog: AlertDialog? = null
+            recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                // UI on main.
+                alertDialog = getLoadingScreen().getShowedLoadingScreen()
+            }
 
-    private fun saveRecordToTele(){}
+            val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
+                Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
+                alertDialog!!.dismiss()
+
+                if (isExecuted) {
+                    Log.i(REC_LIB_TAG, "COMMANDS EXECUTED")
+                    Log.i(REC_LIB_TAG, "message in afterWait: $message")
+                    // read the list of files from the message
+                    var tmpMessage = message.replace("/[^,]*/".toRegex(), "")
+                    val files = tmpMessage.split(",")
+                    Log.i(REC_LIB_TAG, "files: $files")
+                    var f: File
+                    // each file: name.ext (expected: .avi)
+                    // save these into the dir as empty files with the same names (if there are no such files currently)
+                    // later, when a file is selected download it if it's length is 0
+                    for (file in files) {
+                        f = File(file)
+                        Log.i("RecLib", "checking file name: ${f.name}")
+                        if (! f.exists()) {
+                            Log.i("RecLib", "fetched new file name: ${f.name}")
+                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE)
+                            fos.close()
+                        }
+                    }
+                } else {
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - failed to fetch list of files",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
+                    }
+                }
+            }
+
+            connectionManager.sendAndWaitForResponse(
+                command,
+                executeAfterWait
+            )
+        }
+    }
 
 
-    private fun setupViewModelLiveData() {
-        // Pass the context.
-        recordingsLibraryViewModel.context.value = context
+    private fun downloadFile(fName: kotlin.String) {
+        val command = "sendVideo:$fName;"
 
-        recordingsLibraryViewModel.isArduinoConnectedText.observe(viewLifecycleOwner) {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+        recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.IO) {
+            // Non UI, long lasting operations should be made on other thread.
+            var alertDialog: AlertDialog? = null
+            recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                // UI on main.
+                alertDialog = getLoadingScreen().getShowedLoadingScreen()
+            }
+
+            val executeAfterWait: (Boolean, String) -> Unit = { isExecuted, message ->
+                Log.i(MANAGE_CONN_TAG, "IS EXECUTED: $isExecuted")
+                // alertDialog!!.dismiss()
+
+                if (isExecuted && "sending" in message) {
+                    Log.e(REC_LIB_TAG, "COMMANDS EXECUTED")
+                    
+                    val params = message.split(":")
+                    connectionManager.receiveFileInConnectedThread(params[1], params[2].toInt(), requireContext())
+                    alertDialog!!.dismiss()
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - file transfer started",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                } else {
+                    Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - failed to transfer file from device",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
+                    }
+                }
+            }
+
+            connectionManager.sendAndWaitForResponse(
+                command,
+                executeAfterWait
+            )
         }
     }
 

@@ -120,7 +120,9 @@ void SDCardController::writeIdx1Chunk() {
   }
 
   bytesWritten = writeLittleEndian((uint32_t)fileFramesWritten * 16, aviFile, 0x00, FROM_CURRENT);
-  if (bytesWritten != 4) {
+
+  if (bytesWritten != 4)
+  {
     Serial.println("Unable to write idx1 size to AVI file");
     return;
   }
@@ -236,7 +238,10 @@ void SDCardController::addToFile(camera_fb_t *frame) {
   filePadding = filePadding + paddingByte;
 }
 
-void SDCardController::calculateFps() {
+
+void SDCardController::calculateFps()
+{
+
   uint32_t fps = vid_config.fps;
   uint32_t fpms = 1000000 / fps;
 
@@ -244,7 +249,10 @@ void SDCardController::calculateFps() {
   writeLittleEndian(fps, aviFile, 0x84, FROM_START);
 }
 
-void SDCardController::updateResolution() {
+
+void SDCardController::updateResolution()
+{
+
   uint32_t width = resolution[vid_config.resolution].width;
   uint32_t height = resolution[vid_config.resolution].height;
 
@@ -274,17 +282,58 @@ void SDCardController::deleteOldFiles() {
   }
 }
 
-void SDCardController::findOldestFile(File dir, char* oldestFileName) {
+std::string SDCardController::listFiles()
+{
+  /****
+   * returns comma separated list of .avi files
+   */
+  std::string result = "";
+  File root = SD_MMC.open("/sdcard");
+  String file = root.getNextFileName();
+  while (!file.isEmpty())
+  {
+    if (file.endsWith(".avi") || file.endsWith(".mp4"))
+    // TODO: leave only .avi, other formats are for tests
+    {
+      Serial.printf("file: %s\n", file.c_str());
+      result.append(file.c_str(), file.length());
+      result.append({','});
+    }
+    file = root.getNextFileName();
+  }
+  root.close();
+  result = result.substr(0, result.length() - 1);
+  return (result);
+}
+
+File SDCardController::getFileStream(std::string name, const char *mode)
+{
+  std::string full_path = "/sdcard/";
+  full_path.append(name);
+  Serial.printf("opening file: %s\n", full_path.c_str());
+  // return fopen(full_path.c_str(), mode);
+  return SD_MMC.open(full_path.c_str(), mode);
+}
+
+void SDCardController::findOldestFile(File dir, char *oldestFileName)
+{
   File file = dir.openNextFile();
 
-  while (file) {
-    if (file.isDirectory()) {
+  while (file)
+  {
+    if (file.isDirectory())
+    {
       findOldestFile(file, oldestFileName);
-    } else {
-      const char* fileName = file.name();
+    }
+    else
+    {
+      const char *fileName = file.name();
 
-      if (strlen(fileName) == 17) {
-        if (strtoll(&fileName[3], NULL, 10) != 0 && strtoll(&fileName[3], NULL, 10) < strtoll(&oldestFileName[3], NULL, 10)) {
+      if (strlen(fileName) == 17)
+      {
+
+        if (strtoll(&fileName[3], NULL, 10) != 0 && strtoll(&fileName[3], NULL, 10) < strtoll(&oldestFileName[3], NULL, 10))
+        {
           char buffer[4];
           file.seek(0x00);
           file.readBytes(buffer, 4);

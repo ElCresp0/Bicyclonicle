@@ -1,9 +1,69 @@
 <resources>
     <string name="app_name">Bicyclonicle</string>
+
+    <!-- menu titles (mobile_navigation.xml) -->
     <string name="title_home">Ekran Główny</string>
     <string name="title_recordings_library">Nagrania</string>
     <string name="title_app_settings">Ustawienia Aplikacji</string>
     <string name="title_recording_settings">Ustawienia Nagrywania</string>
+
+    <!-- APP SETTINGS (app_settings_preferences.xml) -->
+    <!-- font size preference -->
+    <string name="title_font_size" translatable="true">Rozmiar Czcionki</string>
+    <string name="summary_font_size" translatable="true">Wybierz preferowany rozmiar czcionki</string>
+    <string name="dialog_title_font_size" translatable="true">Wybierz rozmiar czcionki</string>
+    <string name="default_value_font_size" translatable="true">średni</string>
+
+    <!-- app information preference -->
+    <string name="title_general_info" translatable="true">Informacje Ogólne</string>
+
+    <string name="title_authors" translatable="true">Autorzy</string>
+    <string name="summary_authors" translatable="true">
+        Julia Klingenberg, Jakub Kiliańczyk, Ignacy Wasilewski, Jan Kornacki
+    </string>
+
+    <string name="title_app_version" translatable="true">Wersja Aplikacji</string>
+    <string name="summary_app_version" translatable="true">Najnowsza</string>
+
+    <!-- RECORDING SETTINGS (recording_settings_preference.xml) -->
+    <!-- synchronize button -->
+    <string name="title_synchronize" translatable="true">Synchronizuj</string>
+    <string name="summary_synchronize" translatable="true">Synchronizuj ustawienia z Arduino</string>
+
+    <!-- resolution preference -->
+    <string name="title_resolution" translatable="true">Rozdzielczość</string>
+    <string name="summary_resolution" translatable="true">Wybierz rozdzielczość nagrania</string>
+
+    <!-- frame rate preference -->
+    <string name="title_frame_rate" translatable="true">Częstotliwość wyświetlania klatek</string>
+    <string name="summary_frame_rate" translatable="true">Wybierz liczbę klatek na sekundę</string>
+
+    <!-- duration preference -->
+    <string name="title_duration" translatable="true">Czas trwania nagrania</string>
+    <string name="summary_duration" translatable="true">Wybierz czas trwania nagrania</string>
+
+    <!-- mute sound preference -->
+    <string name="title_mute_sound" translatable="true">Wycisz dźwięk</string>
+    <string name="summary_mute_sound" translatable="true">Wycisz dźwięk podczas nagrywania</string>
+
+    <!-- show date preference -->
+    <string name="title_show_date" translatable="true">Wyświetl datę na nagraniu</string>
+    <string name="summary_show_date" translatable="true">
+        Wyświetl datę nagrania
+    </string>
+
+    <!-- Codec preference -->
+    <string name="title_codec" translatable="true">Kodek</string>
+    <string name="summary_codec" translatable="true">Wybierz kodek wideo</string>
+
+    <!-- CONNECTION STATUS MESSAGES -->
+    <string name="connection_status" translatable="true">Status połączenia</string>
+    <string name="connected" translatable="true">Arduino podłączone</string>
+    <string name="not_connected" translatable="true">Arduino NIE podłączone</string>
+    <string name="message_read" translatable="true">Wiadomość przeczytana</string>
+
+    <!-- HOME FRAGMENT -->
+    <string name="connect_to_arduino" translatable="true">Połącz</string>
 
 
 </resources>

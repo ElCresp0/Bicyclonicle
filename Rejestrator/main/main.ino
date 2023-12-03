@@ -1,19 +1,22 @@
-#include "CameraController.h"
+// #include "CameraController.h"
 #include "SDCardController.h"
+#include "BluetoothController.h"
 #include "BicVariables.h"
 #include "Wire.h"
 
 bool buttonPressed = false;
 
-RTC_DS3231 rtc;
+// RTC_DS3231 rtc;
 
 TaskHandle_t Core0Task;
 TaskHandle_t Core1Task;
 
-CameraController cameraController;
+// CameraController cameraController;
 SDCardController sdCardController;
+BluetoothController bluetoothController;
 
-void writeVideoConfigToMemory() {
+void writeVideoConfigToMemory()
+{
   EEPROM.put(VIDEO_CONFIG_ADDRESS, vid_config);
   EEPROM.commit();
 }
@@ -124,4 +127,7 @@ void codeCore0Task(void *parameter) {
   }
 }
 
-void codeCore1Task(void *parameter) {}
+void codeCore1Task(void *parameter)
+{
+  bluetoothController.run();
+}
