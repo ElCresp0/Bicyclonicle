@@ -11,5 +11,6 @@ public:
 private:
   uint16_t fileFramesCaptured  = 0;          // Number of frames captured by camera.
   uint32_t fileFramesTotalSize = 0;          // Total size of frames in file.
+  camera_config_t config;
   void captureFrame();
 };

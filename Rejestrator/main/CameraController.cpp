@@ -2,7 +2,6 @@
 #include "CameraController.h"
 
 void CameraController::initialize() {
-  camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
   config.pin_d0 = Y2_GPIO_NUM;
@@ -23,12 +22,8 @@ void CameraController::initialize() {
   config.pin_reset = RESET_GPIO_NUM;
   config.xclk_freq_hz = 20000000;
   config.pixel_format = PIXFORMAT_JPEG;
-  config.frame_size = vid_config.resolution;
   config.jpeg_quality = 16;
   config.fb_count = 1;
-
-  Serial.print("Resolution: ");
-  Serial.println(vid_config.resolution);
 
   if (psramFound()) {
     config.fb_count = 2;
@@ -46,6 +41,10 @@ void CameraController::initialize() {
 }
 
 uint32_t CameraController::record() {
+  config.frame_size = vid_config.resolution;
+  Serial.print("Resolution: ");
+  Serial.println(vid_config.resolution);
+
   unsigned long currentMillis = 0;
   unsigned long lastPictureTaken = 0;
 
