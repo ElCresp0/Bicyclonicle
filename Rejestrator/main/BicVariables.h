@@ -10,7 +10,7 @@
 #include "soc/rtc_cntl_reg.h"
 
 // RTC clock
-// #include "RTClib.h"
+#include "RTClib.h"
 
 // Defines for debbuging
 // #define DEBUG_WAIT
