@@ -1,4 +1,4 @@
-// #include "CameraController.h"
+#include "CameraController.h"
 #include "SDCardController.h"
 #include "BluetoothController.h"
 #include "BicVariables.h"
@@ -6,12 +6,12 @@
 
 bool buttonPressed = false;
 
-// RTC_DS3231 rtc;
+RTC_DS3231 rtc;
 
 TaskHandle_t Core0Task;
 TaskHandle_t Core1Task;
 
-// CameraController cameraController;
+CameraController cameraController;
 SDCardController sdCardController;
 BluetoothController bluetoothController;
 
@@ -101,7 +101,7 @@ void setup() {
                     2,           /* priority of the task */
                     &Core0Task,      /* Task handle to keep track of created task */
                     0);          /* pin task to core 0 */ 
-  //xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 3, &Core1Task, 1);
+  xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 3, &Core1Task, 1);
 }
 
 void loop() {}
