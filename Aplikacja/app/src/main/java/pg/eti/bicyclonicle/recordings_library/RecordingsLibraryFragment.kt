@@ -29,6 +29,7 @@ import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
 import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import java.io.File
+import java.nio.file.Files
 import kotlin.io.path.fileSize
 
 
@@ -82,7 +83,7 @@ class RecordingsLibraryFragment() : Fragment() {
             // play video if it's downloaded or download it from esp
             val videoPath = arrayList[position].retVideoPath()
             val f = File(videoPath)
-            val size = f.toPath().fileSize()
+            val size = f.length()
 //            Files.size(f.toPath())
 //            val size: BasicFileAttributes = Files.readAttributes(f.toPath(), BasicFileAttributes)
             Log.i(REC_LIB_TAG, "file size: $size")
@@ -194,9 +195,17 @@ class RecordingsLibraryFragment() : Fragment() {
                     for (file in files) {
                         f = File(file)
                         Log.i("RecLib", "checking file name: ${f.name}")
-                        if (! f.exists()) {
+                        try {
+                            val fis = requireContext().openFileInput(f.name)
+                            fis.close()
+                        }
+                        catch(e: Exception) {
+                            e.printStackTrace()
                             Log.i("RecLib", "fetched new file name: ${f.name}")
-                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE)
+                            val fos = requireContext().openFileOutput(
+                                f.name,
+                                android.content.Context.MODE_PRIVATE
+                            )
                             fos.close()
                         }
                     }
