@@ -22,12 +22,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.String
 import pg.eti.bicyclonicle.LoadingScreen
+import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
 import pg.eti.bicyclonicle.ui.record.RecordFile
 import pg.eti.bicyclonicle.ui.record.RecordFileAdapter
 import pg.eti.bicyclonicle.arduino_connection.services.MANAGE_CONN_TAG
 import java.io.File
+import java.nio.file.Files
 import kotlin.io.path.fileSize
 
 
@@ -69,18 +71,19 @@ class RecordingsLibraryFragment() : Fragment() {
 
         arrayList = ArrayList()
         fetchNewFileNames()
+
+//        todo: notify view
         arrayList = setDataList()
 
         recordFileAdapter = RecordFileAdapter(requireContext(), arrayList)
 
-        fetchNewFileNames()
 
         gridView.adapter = recordFileAdapter
         gridView.onItemClickListener = OnItemClickListener { _, _, position, _ ->
             // play video if it's downloaded or download it from esp
             val videoPath = arrayList[position].retVideoPath()
             val f = File(videoPath)
-            val size = f.toPath().fileSize()
+            val size = f.length()
 //            Files.size(f.toPath())
 //            val size: BasicFileAttributes = Files.readAttributes(f.toPath(), BasicFileAttributes)
             Log.i(REC_LIB_TAG, "file size: $size")
@@ -123,7 +126,7 @@ class RecordingsLibraryFragment() : Fragment() {
                 val out: String?
                 val sdSaved: Boolean?
                 val telSaved: Boolean?
-                if (File(it.name).length() > 0) { //todo
+                if (it.length() > 0) {
                     thumb = ThumbnailUtils.createVideoThumbnail(
                         it.absolutePath,
                         MediaStore.Images.Thumbnails.MINI_KIND
@@ -134,9 +137,9 @@ class RecordingsLibraryFragment() : Fragment() {
                         metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                     val dur = duration!!.toLong()
 
-                    val seconds = java.lang.String.valueOf(dur % 60000 / 1000)
-                    val minutes = java.lang.String.valueOf(dur / 60000)
-                    out = "$minutes:$seconds"
+                    val seconds = dur % 60000 / 1000
+                    val minutes = dur / 60000
+                    out = String.format("%02d:%02d", minutes, seconds)
                     sdSaved = false;
                     telSaved = true;
                 }
@@ -154,6 +157,17 @@ class RecordingsLibraryFragment() : Fragment() {
     }
 
     private fun fetchNewFileNames() {
+        if (connectionManager.getUpdatedArduinoConnectionStatus() != ConnectionStatus.CONNECTED) {
+            recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                Toast.makeText(
+                    requireContext(),
+                    "BT - not connected",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            Log.e(REC_LIB_TAG, "BT - not connected")
+            return
+        }
         val command = "ls;"
         recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.IO) {
             // Non UI, long lasting operations should be made on other thread.
@@ -181,9 +195,17 @@ class RecordingsLibraryFragment() : Fragment() {
                     for (file in files) {
                         f = File(file)
                         Log.i("RecLib", "checking file name: ${f.name}")
-                        if (! f.exists()) {
+                        try {
+                            val fis = requireContext().openFileInput(f.name)
+                            fis.close()
+                        }
+                        catch(e: Exception) {
+                            e.printStackTrace()
                             Log.i("RecLib", "fetched new file name: ${f.name}")
-                            val fos = requireContext().openFileOutput(f.name, Context.MODE_PRIVATE)
+                            val fos = requireContext().openFileOutput(
+                                f.name,
+                                android.content.Context.MODE_PRIVATE
+                            )
                             fos.close()
                         }
                     }
