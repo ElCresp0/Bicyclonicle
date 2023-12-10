@@ -1,11 +1,14 @@
 package pg.eti.bicyclonicle.recordings_library
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.media.ThumbnailUtils
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,10 +21,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.String
 import pg.eti.bicyclonicle.LoadingScreen
+import pg.eti.bicyclonicle.R
 import pg.eti.bicyclonicle.arduino_connection.enums.ConnectionStatus
 import pg.eti.bicyclonicle.arduino_connection.services.ConnectionManager
 import pg.eti.bicyclonicle.databinding.FragmentRecordingsBinding
@@ -50,6 +55,23 @@ class RecordingsLibraryFragment() : Fragment() {
     private lateinit var recordingsLibraryViewModel: RecordingsLibraryViewModel
     private lateinit var connectionManager: ConnectionManager
 
+    companion object {
+        var noReload: Boolean = false
+    }
+
+    private val mHandler: Handler = object : Handler() {
+        @SuppressLint("HandlerLeak")
+        override fun handleMessage(msg: Message) {
+            val navController = findNavController()
+            noReload = true
+            Log.i(REC_LIB_TAG, "Reloading...")
+            navController.run {
+                popBackStack()
+                navigate(R.id.navigation_recording_library)
+            }
+        }
+    }
+
     init {
         if (!::connectionManager.isInitialized) {
             connectionManager = ConnectionManager.getExistInstance()
@@ -70,9 +92,8 @@ class RecordingsLibraryFragment() : Fragment() {
         gridView = binding.recordGrid
 
         arrayList = ArrayList()
-        fetchNewFileNames()
-
-//        todo: notify view
+        if (!noReload) fetchNewFileNames()
+        noReload = false
         arrayList = setDataList()
 
         recordFileAdapter = RecordFileAdapter(requireContext(), arrayList)
@@ -209,6 +230,7 @@ class RecordingsLibraryFragment() : Fragment() {
                             fos.close()
                         }
                     }
+                    mHandler.sendMessage(Message())
                 } else {
                     recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
                         Toast.makeText(
