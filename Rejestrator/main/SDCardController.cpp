@@ -1,4 +1,6 @@
+#ifndef SDCardController_H
 #include "SDCardController.h"
+#endif
 
 void SDCardController::initialize() {
   Serial.println("Initialising SD card");

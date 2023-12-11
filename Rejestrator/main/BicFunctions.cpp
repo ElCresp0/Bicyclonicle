@@ -57,3 +57,23 @@ void setSavedByte(File file, bool ifSaved){
   writeLittleEndian(ifSaved, file, 0x110, FROM_START);
 }
 
+void writeVideoConfigToMemory()
+{
+  EEPROM.put(VIDEO_CONFIG_ADDRESS, vid_config);
+  EEPROM.commit();
+}
+
+void readVideoConfigFromMemory()
+{
+  EEPROM.get(VIDEO_CONFIG_ADDRESS, vid_config);
+
+  Serial.println("Recording settings: ");
+  Serial.print("Resolution: ");
+  Serial.println(vid_config.resolution);
+  Serial.print("Fps: ");
+  Serial.println(vid_config.fps);
+  Serial.print("One video length: ");
+  Serial.println(vid_config.video_length);
+  Serial.print("Date on video: ");
+  Serial.println(vid_config.video_date);
+}

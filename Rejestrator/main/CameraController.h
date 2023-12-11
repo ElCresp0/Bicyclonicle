@@ -1,6 +1,8 @@
 #define CameraController_h
 
+#ifndef SDCardController_H
 #include "SDCardController.h"
+#endif
 #include "BicFunctions.h"
 
 class CameraController {
