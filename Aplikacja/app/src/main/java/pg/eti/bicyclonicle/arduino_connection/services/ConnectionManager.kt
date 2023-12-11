@@ -134,7 +134,7 @@ class ConnectionManager private constructor(
                             Log.e("BT", "received message: \"failed\"")
                         else if ("sending" in receivedMessage)
                             responseSemaphore.release()
-                        else if ("sdcard" in receivedMessage)
+                        else if ("avi" in receivedMessage || "mp4" in receivedMessage)
                             responseSemaphore.release()
                     }
                 }

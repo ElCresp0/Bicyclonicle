@@ -299,7 +299,6 @@ std::string SDCardController::listFiles()
     // TODO: leave only .avi, other formats are for tests
     {
       Serial.printf("file: %s\n", file.c_str());
-      result.append("/sdcard");
       result.append(file.c_str(), file.length());
       result.append({','});
     }

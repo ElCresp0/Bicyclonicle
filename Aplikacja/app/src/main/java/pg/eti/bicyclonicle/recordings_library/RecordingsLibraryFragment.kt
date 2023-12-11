@@ -210,7 +210,7 @@ class RecordingsLibraryFragment() : Fragment() {
                     Log.i(REC_LIB_TAG, "COMMANDS EXECUTED")
                     Log.i(REC_LIB_TAG, "message in afterWait: $message")
                     // read the list of files from the message
-                    var tmpMessage = message.replace("/[^,]*/".toRegex(), "")
+                    var tmpMessage = message.replace("/".toRegex(), "")
                     val files = tmpMessage.split(",")
                     Log.i(REC_LIB_TAG, "files: $files")
                     var f: File

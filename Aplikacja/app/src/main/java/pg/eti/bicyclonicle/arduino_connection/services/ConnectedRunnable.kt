@@ -95,7 +95,7 @@ class ConnectedThread(
                         // receiveBlueToothFile(params[1], params[2].toInt())
                         
                     }
-                    else if ("sdcard" in readMessage) {
+                    else if ("avi" in readMessage || "mp4" in readMessage) {
                         // means message contains ls result in a form of comma separated list of paths
                         // send it to the handler for further processing
                         connectionHandler.obtainMessage(
