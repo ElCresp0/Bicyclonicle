@@ -1,10 +1,7 @@
 #include "CameraController.h"
-#ifndef SDCardController_H
 #include "SDCardController.h"
-#endif
 
 #include "BluetoothController.h"
-#include "BicVariables.h"
 #include "BicFunctions.h"
 #include "Wire.h"
 
@@ -88,7 +85,7 @@ void setup() {
                     "Core0Task",     /* name of task. */
                     8192,       /* Stack size of task */
                     NULL,        /* parameter of the task */
-                    2,           /* priority of the task */
+                    4,           /* priority of the task */
                     &Core0Task,      /* Task handle to keep track of created task */
                     0);          /* pin task to core 0 */ 
   xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 3, &Core1Task, 1);
@@ -108,6 +105,7 @@ void codeCore0Task(void *parameter) {
 
     if (fileOpen) {
       uint32_t fileFramesTotalSize = cameraController.record();
+      Serial.println("ending");
       sdCardController.closeFile(buttonPressed, fileFramesTotalSize);
     }
 

@@ -1,9 +1,5 @@
-#ifndef BicFunctions_H
-#define BicFunctions_H
-
-#ifndef SDCardController_H
-#include "SDCardController.h"
-#endif
+#ifndef BicFunctions_h
+#define BicFunctions_h
 
 #include "BicVariables.h"
 #include "driver/sdmmc_host.h"

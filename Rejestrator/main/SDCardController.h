@@ -7,8 +7,7 @@
 #include "driver/sdmmc_host.h"
 #include <SD_MMC.h>
 #include "esp_vfs_fat.h"
-#include "FS.h"                // File system for SD Card ESP32
-#include <EEPROM.h>   
+#include "FS.h"                // File system for SD Card ESP32 
 
 class SDCardController {
 public:
