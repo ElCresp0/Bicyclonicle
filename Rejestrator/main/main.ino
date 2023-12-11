@@ -40,8 +40,8 @@ void initialiseEeprom() {
 }
 
 void IRAM_ATTR isr() {
-buttonPressed = true;
-Serial.println("Button pressed - current video will be saved.");
+  buttonPressed = true;
+  Serial.println("Button pressed - current video will be saved.");
 }
 
 void setup() {
@@ -98,13 +98,13 @@ void loop() {}
 
 void codeCore0Task(void *parameter) {
   while (true) {
-  #ifdef DEBUG_WAIT
+    #ifdef DEBUG_WAIT
     delay(10000);
     #endif
 
-  sdCardController.deleteOldFiles();
+    sdCardController.deleteOldFiles();
 
-  bool fileOpen = sdCardController.startFile();
+    bool fileOpen = sdCardController.startFile();
 
     if (fileOpen) {
       uint32_t fileFramesTotalSize = cameraController.record();
@@ -119,5 +119,5 @@ void codeCore0Task(void *parameter) {
 
 void codeCore1Task(void *parameter)
 {
-    bluetoothController.run();
+  bluetoothController.run();
 }
