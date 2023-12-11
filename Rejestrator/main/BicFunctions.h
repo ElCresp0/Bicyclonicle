@@ -1,5 +1,5 @@
-#ifndef BicFunctions_H
-#define BicFunctions_H
+#ifndef BicFunctions_h
+#define BicFunctions_h
 
 #include "BicVariables.h"
 #include "driver/sdmmc_host.h"
@@ -17,4 +17,8 @@ uint32_t getVideoLengthInSeconds(File file);
 bool getSavedByte(File file);
 
 void setSavedByte(File file, bool ifSaved);
+
+void writeVideoConfigToMemory();
+
+void readVideoConfigFromMemory();
 #endif

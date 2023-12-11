@@ -2,6 +2,7 @@
 #include "CameraController.h"
 
 void CameraController::initialize() {
+  camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
   config.pin_d0 = Y2_GPIO_NUM;
@@ -41,7 +42,8 @@ void CameraController::initialize() {
 }
 
 uint32_t CameraController::record() {
-  config.frame_size = vid_config.resolution;
+  sensor_t * s = esp_camera_sensor_get();
+  s->set_framesize(s, vid_config.resolution);
   Serial.print("Resolution: ");
   Serial.println(vid_config.resolution);
 

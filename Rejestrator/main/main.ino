@@ -1,7 +1,8 @@
 #include "CameraController.h"
 #include "SDCardController.h"
+
 #include "BluetoothController.h"
-#include "BicVariables.h"
+#include "BicFunctions.h"
 #include "Wire.h"
 
 bool buttonPressed = false;
@@ -14,12 +15,6 @@ TaskHandle_t Core1Task;
 CameraController cameraController;
 SDCardController sdCardController;
 BluetoothController bluetoothController;
-
-void writeVideoConfigToMemory()
-{
-  EEPROM.put(VIDEO_CONFIG_ADDRESS, vid_config);
-  EEPROM.commit();
-}
 
 void initialiseEeprom() {
   int8_t firstTime;
@@ -38,17 +33,7 @@ void initialiseEeprom() {
     return;
   }
 
-  EEPROM.get(VIDEO_CONFIG_ADDRESS, vid_config);
-
-  Serial.println("Recording settings: ");
-  Serial.print("Resolution: ");
-  Serial.println(vid_config.resolution);
-  Serial.print("Fps: ");
-  Serial.println(vid_config.fps);
-  Serial.print("One video length: ");
-  Serial.println(vid_config.video_length);
-  Serial.print("Date on video: ");
-  Serial.println(vid_config.video_date);
+  readVideoConfigFromMemory();
 }
 
 void IRAM_ATTR isr() {
@@ -70,6 +55,7 @@ void setup() {
 
   cameraController.initialize();
   sdCardController.initialize();
+  bluetoothController.initialize();
 
   #ifdef RTC_CLOCK
   Wire.begin(I2C_SDA, I2C_SCL);
@@ -84,6 +70,7 @@ void setup() {
   #endif
 
   cameraController.sdCardController = &sdCardController;
+  bluetoothController.sdCardController = &sdCardController;
   sdCardController.rtc = rtc;
 
   delay(10);
@@ -98,7 +85,7 @@ void setup() {
                     "Core0Task",     /* name of task. */
                     8192,       /* Stack size of task */
                     NULL,        /* parameter of the task */
-                    2,           /* priority of the task */
+                    4,           /* priority of the task */
                     &Core0Task,      /* Task handle to keep track of created task */
                     0);          /* pin task to core 0 */ 
   xTaskCreatePinnedToCore(codeCore1Task, "Core1Task", 8192, NULL, 3, &Core1Task, 1);
@@ -118,6 +105,7 @@ void codeCore0Task(void *parameter) {
 
     if (fileOpen) {
       uint32_t fileFramesTotalSize = cameraController.record();
+      Serial.println("ending");
       sdCardController.closeFile(buttonPressed, fileFramesTotalSize);
     }
 

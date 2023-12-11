@@ -1,5 +1,6 @@
 #include "SDCardController.h"
 
+
 void SDCardController::initialize() {
   Serial.println("Initialising SD card");
 
@@ -86,7 +87,7 @@ void SDCardController::closeFile(bool buttonPressed, uint32_t fileFramesTotalSiz
 
   // Update the info section if the save button was pressed during this recording.
   if (buttonPressed) {
-    writeLittleEndian(1, aviFile, 0x110, FROM_START);
+    writeLittleEndian(1, aviFile, 0xD4, FROM_START);
     buttonPressed = false;
   }
 
@@ -94,7 +95,7 @@ void SDCardController::closeFile(bool buttonPressed, uint32_t fileFramesTotalSiz
   //   fileFramesWritten * 8 (extra chunk bytes for each frame)
   //   fileFramesTotalSize (frames from the camera)
   //   filePadding
-  writeLittleEndian(fileFramesWritten * 8 + fileFramesTotalSize + filePadding, aviFile, 0x115, FROM_START);
+  writeLittleEndian(fileFramesWritten * 8 + fileFramesTotalSize + filePadding, aviFile, 0xDC, FROM_START);
 
   // Move the write head back to the end of the AVI file.
 
@@ -235,7 +236,9 @@ void SDCardController::addToFile(camera_fb_t *frame) {
 
   // Increment the frames written count, and keep track of total padding.
   fileFramesWritten++;
+
   filePadding = filePadding + paddingByte;
+
 }
 
 
@@ -288,7 +291,7 @@ std::string SDCardController::listFiles()
    * returns comma separated list of .avi files
    */
   std::string result = "";
-  File root = SD_MMC.open("/sdcard");
+  File root = SD_MMC.open("/");
   String file = root.getNextFileName();
   while (!file.isEmpty())
   {
@@ -308,7 +311,7 @@ std::string SDCardController::listFiles()
 
 File SDCardController::getFileStream(std::string name, const char *mode)
 {
-  std::string full_path = "/sdcard/";
+  std::string full_path = "/";
   full_path.append(name);
   Serial.printf("opening file: %s\n", full_path.c_str());
   // return fopen(full_path.c_str(), mode);
@@ -337,7 +340,7 @@ void SDCardController::findOldestFile(File dir, char *oldestFileName)
           char buffer[4];
           file.seek(0x00);
           file.readBytes(buffer, 4);
-          file.seek(0x110);
+          file.seek(0xD4);
           char saveByte = file.peek();
           if (strcmp(buffer, "RIFF") == 0 && !getSavedByte(file)) {
             strcpy(oldestFileName, fileName);

@@ -73,7 +73,8 @@ void BluetoothController::sendVideo(std::string name)
         SerialBT.write((uint8_t *)buff, count);
     }
     f.close();
-    sendMessage("executed;");
+    // TODO? set savedByte of the video to false after downloading?
+    // sendMessage("executed;"); <- that causes problems on application side
 }
 
 void BluetoothController::run()
@@ -110,22 +111,27 @@ void BluetoothController::run()
                     if (key.compare("key_resolution") == 0)
                     {
                         Serial.printf("received key_resolution of value: %s\n", value.c_str());
-                        vid_config.resolution = (framesize_t)std::stoi(value);
+                        if (!value.empty()) vid_config.resolution = (framesize_t)std::stoi(value);
+                        else Serial.println("resolution value EMPTY");
                     }
                     else if (key.compare("key_duration") == 0)
                     {
                         Serial.printf("received key_duration of value: %s\n", value.c_str());
-                        vid_config.video_length = std::stoi(value);
+                        if (!value.empty()) vid_config.video_length = std::stoi(value);
+                        else Serial.println("duration value EMPTY");
                     }
                     else if (key.compare("key_mute_sound") == 0)
                     {
                         Serial.printf("received key_mute_sound of value: %s\n", value.c_str());
-                        // vid_config = (value.compare("true") == 0); // there is no sound in videos yet
+                        // if (!value.empty()) vid_config = (value.compare("true") == 0); // there is no sound in videos yet
+                        if (value.empty()) Serial.println("sound value EMPTY");
                     }
                     else if (key.compare("key_show_date") == 0)
                     {
                         Serial.printf("received key_show_date of value: %s\n", value.c_str());
-                        vid_config.video_date = (value.compare("true") == 0);
+                        if (!value.empty()) vid_config.video_date = (value.compare("true") == 0);
+                        else Serial.println("date value EMPTY");
+                        writeVideoConfigToMemory();
                         sendMessage("executed;");
                     }
                     else if (key.compare("sendVideo") == 0)
@@ -143,6 +149,7 @@ void BluetoothController::run()
                     if (input.compare("ls") == 0)
                     {
                         listFiles();
+                        readVideoConfigFromMemory(); // for debugging purposes, doesn't affect anything
                     }
                     else
                     {
