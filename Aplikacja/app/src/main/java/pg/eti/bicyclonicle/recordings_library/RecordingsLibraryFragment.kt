@@ -92,7 +92,11 @@ class RecordingsLibraryFragment() : Fragment() {
         gridView = binding.recordGrid
 
         arrayList = ArrayList()
-        if (!noReload) fetchNewFileNames()
+        if (!noReload) {
+            Log.i(REC_LIB_TAG, "before fetching")
+            fetchNewFileNames()
+            Log.i(REC_LIB_TAG, "after fetching")
+        }
         noReload = false
         arrayList = setDataList()
 
@@ -252,6 +256,17 @@ class RecordingsLibraryFragment() : Fragment() {
 
 
     private fun downloadFile(fName: kotlin.String) {
+        if (connectionManager.getUpdatedArduinoConnectionStatus() != ConnectionStatus.CONNECTED) {
+            recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                Toast.makeText(
+                    requireContext(),
+                    "BT - not connected",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+            Log.e(REC_LIB_TAG, "BT - not connected")
+            return
+        }
         val command = "sendVideo:$fName;"
 
         recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.IO) {
@@ -268,10 +283,6 @@ class RecordingsLibraryFragment() : Fragment() {
 
                 if (isExecuted && "sending" in message) {
                     Log.e(REC_LIB_TAG, "COMMANDS EXECUTED")
-                    
-                    val params = message.split(":")
-                    connectionManager.receiveFileInConnectedThread(params[1], params[2].toInt(), requireContext())
-                    alertDialog!!.dismiss()
                     recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
                         Toast.makeText(
                             requireContext(),
@@ -279,6 +290,17 @@ class RecordingsLibraryFragment() : Fragment() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+                    val params = message.split(":")
+                    connectionManager.receiveFileInConnectedThread(params[1], params[2].toInt(), requireContext())
+                    alertDialog!!.dismiss()
+                    recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "BT - file transfer finished",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    mHandler.sendMessage(Message())
                 } else {
                     Log.e(REC_LIB_TAG, "COMMANDS NOT EXECUTED")
                     recordingsLibraryViewModel.viewModelScope.launch(Dispatchers.Main) {
