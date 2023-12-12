@@ -49,12 +49,12 @@ uint32_t getVideoLengthInSeconds(File file){
 }
 
 bool getSavedByte(File file){
-  file.seek(0x110);
+  file.seek(0xD4);
   return file.peek() == 0x01;
 }
 
 void setSavedByte(File file, bool ifSaved){
-  writeLittleEndian(ifSaved, file, 0x110, FROM_START);
+  writeLittleEndian(ifSaved, file, 0xD4, FROM_START);
 }
 
 void writeVideoConfigToMemory()
